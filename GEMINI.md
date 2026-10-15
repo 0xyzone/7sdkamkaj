@@ -54,10 +54,15 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
   - Resource: `App\Filament\Resources\Roles\RoleResource`
   - Features: Fine-grained grid permissions checkboxes layout, grouped by navigation tabs, slide-over create/edit
 - **UI & Theme**:
-  - Custom theme: `resources/css/filament/admin/theme.css` with Poppins font and Slate/Indigo corporate styling
+  - Primary Brand Color: Crimson Red (`#ed1c24`) matching the Seven Series Authentic Denim brand identity
+  - Brand Assets: Responsive `brand-logo.blade.php` (red '7' symbol on mobile, full "7 SEVEN SERIES Authentic Denim" logo on desktop), `favicon.png`, `apple-touch-icon.png`
+  - Custom theme: `resources/css/filament/admin/theme.css` with Poppins font and modern corporate styling
+  - Mobile Card Listing: Native app card layout on mobile via `->stackedOnMobile()` on all resources, eliminating horizontal scroll
+  - Compact Global Search: Space-efficient search pill with `⌘K` badge expanding on focus to maximize topbar utility
   - Live auto-reload: Vite watching Filament schemas, views, and models
   - Gallery preview: `al-saloul/filament-image-gallery` for interactive image lightbox
-  - Avatar management: `HasAvatar` on User model and `UserAvatarWidget` on Dashboard
+  - Avatar management: `HasAvatar` on User model, custom `EditProfile` page with avatar upload, `UserAvatarWidget` on Dashboard, and real-time topbar avatar listener (`avatar-updated` event) without page reloads
+  - PWA Support: Installable PWA with `manifest.json`, Service Worker caching (`sw.js`), and install prompt banner for Android/iOS/Desktop
   - Password recovery: Enabled via native Filament `passwordReset()`
   - File lifecycle: Auto-deletion of removed, replaced, or deleted images from storage disk across all models
-- **Current Version**: `1.3.0`
+- **Current Version**: `1.4.0`

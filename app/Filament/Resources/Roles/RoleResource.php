@@ -181,6 +181,7 @@ class RoleResource extends Resource
                     ->label(__('filament-shield::filament-shield.column.updated_at'))
                     ->dateTime(),
             ])
+            ->stackedOnMobile()
             ->filters([
                 //
             ])

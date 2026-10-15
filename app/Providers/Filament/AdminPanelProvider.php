@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use Agroezinger\FilamentShieldEnhanced\FilamentShieldEnhancedPlugin;
 use Alsaloul\ImageGallery\ImageGalleryPlugin;
+use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Widgets\UserAvatarWidget;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\FontProviders\GoogleFontProvider;
@@ -33,13 +34,16 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('/')
             ->brandName('7 Series Kamkaj')
+            ->brandLogo(fn () => view('filament.components.brand-logo'))
+            ->brandLogoHeight('2rem')
+            ->favicon(asset('favicon.png'))
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->font('Poppins', provider: GoogleFontProvider::class)
             ->login()
             ->passwordReset()
-            ->profile(isSimple: false)
+            ->profile(EditProfile::class)
             ->colors([
-                'primary' => Color::Indigo,
+                'primary' => Color::hex('#ed1c24'),
                 'gray' => Color::Slate,
                 'info' => Color::Sky,
                 'success' => Color::Emerald,
@@ -49,6 +53,20 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->unsavedChangesAlerts()
             ->spa()
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchFieldSuffix(fn () => '⌘K')
+            ->renderHook(
+                PanelsRenderHook::HEAD_START,
+                fn () => view('filament.components.pwa-head'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn () => view('filament.components.pwa-prompt'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn () => view('filament.components.avatar-listener'),
+            )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
                 fn () => view('filament.components.auth-version-badge'),

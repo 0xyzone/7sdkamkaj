@@ -58,6 +58,8 @@ class UserAvatarWidget extends Widget implements HasActions, HasForms
                 $user->avatar_url = $data['avatar_url'];
                 $user->save();
 
+                $this->dispatch('avatar-updated', url: $user->getFilamentAvatarUrl());
+
                 Notification::make()
                     ->title('Avatar updated successfully')
                     ->success()
@@ -84,6 +86,8 @@ class UserAvatarWidget extends Widget implements HasActions, HasForms
 
                 $user->avatar_url = null;
                 $user->save();
+
+                $this->dispatch('avatar-updated', url: null);
 
                 Notification::make()
                     ->title('Avatar removed')

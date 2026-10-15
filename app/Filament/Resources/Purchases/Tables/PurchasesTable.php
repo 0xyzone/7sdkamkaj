@@ -92,6 +92,7 @@ class PurchasesTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->stackedOnMobile()
             ->defaultSort('purchase_date', 'desc')
             ->filters([
                 SelectFilter::make('vendor_id')

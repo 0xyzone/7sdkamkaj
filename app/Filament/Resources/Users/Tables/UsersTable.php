@@ -65,6 +65,7 @@ class UsersTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->stackedOnMobile()
             ->filters([
                 TernaryFilter::make('is_active')
                     ->label('Status')

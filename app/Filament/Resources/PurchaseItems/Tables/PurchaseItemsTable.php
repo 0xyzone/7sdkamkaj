@@ -76,6 +76,7 @@ class PurchaseItemsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->stackedOnMobile()
             ->filters([
                 SelectFilter::make('category')
                     ->options([
