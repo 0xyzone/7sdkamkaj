@@ -22,7 +22,7 @@ class PurchaseItemForm
                     ->description('Specify material identification, classification, and preferred vendor.')
                     ->icon(Heroicon::OutlinedCube)
                     ->schema([
-                        Grid::make(2)
+                        Grid::make(['default' => 1, 'sm' => 2])
                             ->schema([
                                 TextInput::make('name')
                                     ->label('Item / Material Name')
@@ -73,7 +73,23 @@ class PurchaseItemForm
                                     ->relationship('vendor', 'name')
                                     ->searchable()
                                     ->preload()
-                                    ->placeholder('Select Vendor (Optional)'),
+                                    ->placeholder('Select or Create Vendor')
+                                    ->createOptionForm([
+                                        TextInput::make('name')
+                                            ->label('Vendor / Company Name')
+                                            ->required()
+                                            ->maxLength(255),
+                                        TextInput::make('email')
+                                            ->email()
+                                            ->maxLength(255),
+                                        TextInput::make('pan_vat_number')
+                                            ->label('PAN / VAT Number')
+                                            ->maxLength(50),
+                                        Textarea::make('address')
+                                            ->label('Address')
+                                            ->rows(2),
+                                    ])
+                                    ->createOptionAction(fn ($action) => $action->slideOver()->modalHeading('Quick Create Vendor')),
 
                                 Toggle::make('is_active')
                                     ->label('Active for Purchasing')

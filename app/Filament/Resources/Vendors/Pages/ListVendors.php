@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Vendors\Pages;
 
 use App\Filament\Resources\Vendors\VendorResource;
+use App\Filament\Widgets\VendorStatsOverview;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
@@ -13,7 +14,14 @@ class ListVendors extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->slideOver(),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            VendorStatsOverview::class,
         ];
     }
 }

@@ -22,7 +22,18 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
 4. **MEMORY CHECK TO MINIMIZE TOKENS & ANALYSIS**:
    - Always check and maintain this memory documentation first before performing repetitive file searches or deep codebase scans, keeping token usage efficient.
 
-5. **TASK COMPLETION PUSH NOTIFICATION (ntfy.sh)**:
+5. **SLIDE-OVER MODALS (NO FULL CREATE/EDIT PAGES)**:
+   - Do NOT create separate create or edit pages for any resource.
+   - Always use slide-over modals (`->slideOver()`) on Header `CreateAction` and Table `EditAction`.
+
+6. **MOBILE-FIRST UI & LAYOUT**:
+   - The user primarily manages this app on mobile devices.
+   - Design table columns and form layouts with mobile responsiveness in mind:
+     - Use primary columns with secondary details in `description()`.
+     - Avoid wide, horizontal-scrolling tables by using badges, icons, and collapsible/accordion elements.
+     - Form grids should be single-column on mobile (`['default' => 1, 'sm' => 2]`).
+
+7. **TASK COMPLETION PUSH NOTIFICATION (ntfy.sh)**:
    - When a task is finalized, immediately send a push notification to the configured ntfy topic:
      - Topic: `7sdkamkaj-tasks` (configurable via `NTFY_TOPIC` in `.env`)
      - Command: `./scripts/notify.sh "<Task Summary>" "<Task Title>"` or `php artisan notify:task "<Message>" --title="<Title>"`
@@ -47,12 +58,16 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
     - Resource: `App\Filament\Resources\Users\UserResource`
     - Status: `is_active` boolean
   - **Purchase Module** (`Purchase` group):
+    - **Purchases**:
+      - Model: `App\Models\Purchase`
+      - Resource: `App\Filament\Resources\Purchases\PurchaseResource`
+      - Features: PO number, vendor selection, line items with auto-computed subtotals, payments tracking, bill & product images, quick 'Record Payment' slide-over action
     - **Purchase Items**:
       - Model: `App\Models\PurchaseItem`
       - Resource: `App\Filament\Resources\PurchaseItems\PurchaseItemResource`
-      - Fields: name, category, UOM, cost_price, vendor_id, description, images (multiple)
+      - Fields: name, category, UOM, cost_price, vendor_id (with quick inline creation), description, images (multiple)
     - **Vendors**:
       - Model: `App\Models\Vendor`
       - Resource: `App\Filament\Resources\Vendors\VendorResource`
-      - Fields: name, email, address, pan_vat_number, website, contacts (JSON repeater with multiple phones), qrs (JSON repeater with wallet types and QR images), bank_accounts (JSON repeater with bank, acc number, branch, routing code), notes, is_active
-- **Current Version**: `1.1.0`
+      - Fields: name, email, address, pan_vat_number, website, contacts (optional), qrs (optional), bank_accounts (optional), notes, is_active
+- **Current Version**: `1.2.0`

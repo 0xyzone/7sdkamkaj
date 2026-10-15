@@ -29,7 +29,7 @@ class VendorForm
                                 Section::make('Vendor Identity & Contact')
                                     ->description('Basic information, registration, and communication details.')
                                     ->schema([
-                                        Grid::make(2)
+                                        Grid::make(['default' => 1, 'sm' => 2])
                                             ->schema([
                                                 TextInput::make('name')
                                                     ->label('Vendor / Company Name')
@@ -64,7 +64,7 @@ class VendorForm
 
                                 Section::make('Status & Notes')
                                     ->schema([
-                                        Grid::make(2)
+                                        Grid::make(['default' => 1, 'sm' => 2])
                                             ->schema([
                                                 Toggle::make('is_active')
                                                     ->label('Active Vendor')
@@ -87,12 +87,12 @@ class VendorForm
                             ->badge(fn ($record): ?string => $record && is_array($record->contacts) ? (string) count($record->contacts) : null)
                             ->schema([
                                 Repeater::make('contacts')
-                                    ->label('Authorized Contacts')
+                                    ->label('Authorized Contacts (Optional)')
                                     ->itemLabel(fn (array $state): ?string => $state['contact_name'] ?? 'New Contact')
                                     ->collapsible()
                                     ->cloneable()
                                     ->schema([
-                                        Grid::make(3)
+                                        Grid::make(['default' => 1, 'sm' => 3])
                                             ->schema([
                                                 TextInput::make('contact_name')
                                                     ->label('Contact Name')
@@ -113,7 +113,7 @@ class VendorForm
                                         Repeater::make('phone_numbers')
                                             ->label('Phone Numbers')
                                             ->schema([
-                                                Grid::make(2)
+                                                Grid::make(['default' => 1, 'sm' => 2])
                                                     ->schema([
                                                         Select::make('type')
                                                             ->label('Type')
@@ -139,7 +139,7 @@ class VendorForm
                                             ->defaultItems(1),
                                     ])
                                     ->addActionLabel('Add Contact Person')
-                                    ->defaultItems(1),
+                                    ->defaultItems(0),
                             ]),
 
                         Tab::make('Banking Details')
@@ -147,12 +147,12 @@ class VendorForm
                             ->badge(fn ($record): ?string => $record && is_array($record->bank_accounts) ? (string) count($record->bank_accounts) : null)
                             ->schema([
                                 Repeater::make('bank_accounts')
-                                    ->label('Vendor Bank Accounts')
+                                    ->label('Vendor Bank Accounts (Optional)')
                                     ->itemLabel(fn (array $state): ?string => filled($state['bank_name'] ?? null) ? "{$state['bank_name']} - {$state['account_number']}" : 'Bank Account')
                                     ->collapsible()
                                     ->cloneable()
                                     ->schema([
-                                        Grid::make(3)
+                                        Grid::make(['default' => 1, 'sm' => 2, 'md' => 3])
                                             ->schema([
                                                 TextInput::make('bank_name')
                                                     ->label('Bank Name')
@@ -183,7 +183,7 @@ class VendorForm
                                             ]),
                                     ])
                                     ->addActionLabel('Add Bank Account')
-                                    ->defaultItems(1),
+                                    ->defaultItems(0),
                             ]),
 
                         Tab::make('Payment QRs')
@@ -191,10 +191,10 @@ class VendorForm
                             ->badge(fn ($record): ?string => $record && is_array($record->qrs) ? (string) count($record->qrs) : null)
                             ->schema([
                                 Repeater::make('qrs')
-                                    ->label('Digital Payment QRs')
+                                    ->label('Digital Payment QRs (Optional)')
                                     ->itemLabel(fn (array $state): ?string => filled($state['qr_type'] ?? null) ? strtoupper($state['qr_type']).' QR' : 'Payment QR')
                                     ->collapsible()
-                                    ->grid(2)
+                                    ->grid(['default' => 1, 'sm' => 2])
                                     ->schema([
                                         Select::make('qr_type')
                                             ->label('QR Type / Wallet')

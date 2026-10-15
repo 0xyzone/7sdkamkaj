@@ -18,10 +18,11 @@ class VendorsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Vendor Name')
+                    ->label('Vendor')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->description(fn ($record) => $record->pan_vat_number ? 'PAN: '.$record->pan_vat_number : ($record->email ?: null)),
 
                 TextColumn::make('pan_vat_number')
                     ->label('PAN / VAT')
@@ -29,14 +30,16 @@ class VendorsTable
                     ->copyable()
                     ->badge()
                     ->color('gray')
-                    ->placeholder('N/A'),
+                    ->placeholder('N/A')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('email')
                     ->label('Email Address')
                     ->searchable()
                     ->copyable()
                     ->icon('heroicon-m-envelope')
-                    ->placeholder('N/A'),
+                    ->placeholder('N/A')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('contacts')
                     ->label('Contacts')
@@ -52,7 +55,8 @@ class VendorsTable
                         ? count($record->bank_accounts).' Account(s)'
                         : 'None')
                     ->badge()
-                    ->color(fn ($record): string => is_array($record?->bank_accounts) && count($record->bank_accounts) > 0 ? 'success' : 'gray'),
+                    ->color(fn ($record): string => is_array($record?->bank_accounts) && count($record->bank_accounts) > 0 ? 'success' : 'gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 ToggleColumn::make('is_active')
                     ->label('Active')
@@ -74,7 +78,7 @@ class VendorsTable
                     ->falseLabel('Inactive Only'),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()->slideOver(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

@@ -22,14 +22,16 @@ class UsersTable
                     ->label('Name')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->description(fn ($record) => $record->email),
 
                 TextColumn::make('email')
                     ->label('Email Address')
                     ->searchable()
                     ->sortable()
                     ->copyable()
-                    ->icon('heroicon-m-envelope'),
+                    ->icon('heroicon-m-envelope')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('roles.name')
                     ->badge()
@@ -68,7 +70,7 @@ class UsersTable
                     ->preload(),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()->slideOver(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

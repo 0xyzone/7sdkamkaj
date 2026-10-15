@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Vendors;
 
-use App\Filament\Resources\Vendors\Pages\CreateVendor;
-use App\Filament\Resources\Vendors\Pages\EditVendor;
 use App\Filament\Resources\Vendors\Pages\ListVendors;
 use App\Filament\Resources\Vendors\Schemas\VendorForm;
 use App\Filament\Resources\Vendors\Tables\VendorsTable;
@@ -23,7 +21,7 @@ class VendorResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Purchase';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationBadge(): ?string
     {
@@ -51,8 +49,6 @@ class VendorResource extends Resource
     {
         return [
             'index' => ListVendors::route('/'),
-            'create' => CreateVendor::route('/create'),
-            'edit' => EditVendor::route('/{record}/edit'),
         ];
     }
 }

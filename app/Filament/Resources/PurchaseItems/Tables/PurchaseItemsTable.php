@@ -30,7 +30,9 @@ class PurchaseItemsTable
                     ->label('Item Name')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->description(fn ($record): ?string => ($record->vendor?->name ? 'Vendor: '.$record->vendor->name : null)
+                        .($record->cost_price ? ' • NPR '.number_format($record->cost_price, 2) : '')),
 
                 TextColumn::make('category')
                     ->label('Category')
@@ -50,14 +52,16 @@ class PurchaseItemsTable
                     ->label('Est. Cost')
                     ->money('NPR')
                     ->sortable()
-                    ->placeholder('0.00'),
+                    ->placeholder('0.00')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('vendor.name')
                     ->label('Preferred Vendor')
                     ->searchable()
                     ->sortable()
                     ->icon('heroicon-m-building-storefront')
-                    ->placeholder('None Assigned'),
+                    ->placeholder('None Assigned')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 ToggleColumn::make('is_active')
                     ->label('Active')
@@ -98,7 +102,7 @@ class PurchaseItemsTable
                     ->falseLabel('Inactive Only'),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()->slideOver(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

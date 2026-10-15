@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\PurchaseItems;
 
-use App\Filament\Resources\PurchaseItems\Pages\CreatePurchaseItem;
-use App\Filament\Resources\PurchaseItems\Pages\EditPurchaseItem;
 use App\Filament\Resources\PurchaseItems\Pages\ListPurchaseItems;
 use App\Filament\Resources\PurchaseItems\Schemas\PurchaseItemForm;
 use App\Filament\Resources\PurchaseItems\Tables\PurchaseItemsTable;
@@ -23,7 +21,7 @@ class PurchaseItemResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Purchase';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     public static function getNavigationBadge(): ?string
     {
@@ -51,8 +49,6 @@ class PurchaseItemResource extends Resource
     {
         return [
             'index' => ListPurchaseItems::route('/'),
-            'create' => CreatePurchaseItem::route('/create'),
-            'edit' => EditPurchaseItem::route('/{record}/edit'),
         ];
     }
 }
