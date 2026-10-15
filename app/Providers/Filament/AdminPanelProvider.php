@@ -35,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('/')
             ->brandName('7 Series Kamkaj')
             ->brandLogo(fn () => view('filament.components.brand-logo'))
+            ->darkModeBrandLogo(fn () => view('filament.components.brand-logo'))
             ->brandLogoHeight('2rem')
             ->favicon(asset('favicon.png'))
             ->viteTheme('resources/css/filament/admin/theme.css')

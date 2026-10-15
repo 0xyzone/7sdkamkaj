@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.5.0';
+    public const CURRENT_VERSION = '1.5.1';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,24 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.5.1',
+                'date' => '2026-10-16',
+                'title' => 'White-Texted Brand Logo for Dark Theme',
+                'type' => 'patch',
+                'badge' => 'UI Polish',
+                'badge_color' => 'warning',
+                'highlights' => 'Integrated official white-texted Seven Series Authentic Denim logo for dark mode environments.',
+                'changes' => [
+                    'added' => [
+                        'Added `public/images/logo-dark.png` and retina `@2x.png` for dark theme rendering.',
+                    ],
+                    'changed' => [
+                        'Updated `brand-logo.blade.php` to dynamically toggle between the standard black-text logo in light mode and the white-text logo in dark mode.',
+                        'Configured `darkModeBrandLogo()` in `AdminPanelProvider` for dark theme brand asset synchronization.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.5.0',
                 'date' => '2026-10-16',

@@ -11,10 +11,19 @@
 
     {{-- Desktop Logo: Full 7 Series Authentic Denim Logo --}}
     <div class="hidden md:flex items-center">
+        {{-- Light Theme: Black Text Logo --}}
         <img 
             src="{{ asset('images/logo.png') }}" 
             alt="7 Series Authentic Denim" 
-            class="h-8 w-auto object-contain dark:brightness-125 dark:contrast-125" 
+            class="h-8 w-auto object-contain dark:hidden" 
+        />
+
+        {{-- Dark Theme: White Text Logo --}}
+        <img 
+            src="{{ asset('images/logo-dark.png') }}" 
+            srcset="{{ asset('images/logo-dark.png') }} 1x, {{ asset('images/logo-dark@2x.png') }} 2x"
+            alt="7 Series Authentic Denim" 
+            class="h-8 w-auto object-contain hidden dark:block" 
         />
     </div>
 </div>

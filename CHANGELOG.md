@@ -4,6 +4,14 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-10-16
+
+### Added
+- **Dark Mode Brand Logo**: Integrated official white-texted Seven Series Authentic Denim logo (`public/images/logo-dark.png` and retina `@2x.png`) for dark themes.
+
+### Changed
+- **Adaptive Brand Header**: Configured `brand-logo.blade.php` and `darkModeBrandLogo()` in `AdminPanelProvider` to dynamically switch between standard black-text logo in light mode and white-text logo in dark mode.
+
 ---
 
 ## [1.5.0] - 2026-10-16
