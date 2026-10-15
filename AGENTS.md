@@ -40,9 +40,19 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
   - Auth: Email & Password
   - Super Admin: `admin@admin.com`
 - **Role & Permissions**: `bezhansalleh/filament-shield` v4.3 with `spatie/laravel-permission`
-- **User Management**:
-  - Model: `App\Models\User`
-  - Resource: `App\Filament\Resources\UserResource`
-  - Status: `is_active` boolean (inactive users are prevented from accessing panel via `canAccessPanel`)
-  - Roles: Integrated via Filament Shield and Spatie `HasRoles`
-- **Current Version**: `1.0.0`
+  - Gate interception enabled (`define_via_gate => true`)
+- **Modules**:
+  - **User Management** (`User Management` group):
+    - Model: `App\Models\User`
+    - Resource: `App\Filament\Resources\Users\UserResource`
+    - Status: `is_active` boolean
+  - **Purchase Module** (`Purchase` group):
+    - **Purchase Items**:
+      - Model: `App\Models\PurchaseItem`
+      - Resource: `App\Filament\Resources\PurchaseItems\PurchaseItemResource`
+      - Fields: name, category, UOM, cost_price, vendor_id, description, images (multiple)
+    - **Vendors**:
+      - Model: `App\Models\Vendor`
+      - Resource: `App\Filament\Resources\Vendors\VendorResource`
+      - Fields: name, email, address, pan_vat_number, website, contacts (JSON repeater with multiple phones), qrs (JSON repeater with wallet types and QR images), bank_accounts (JSON repeater with bank, acc number, branch, routing code), notes, is_active
+- **Current Version**: `1.1.0`
