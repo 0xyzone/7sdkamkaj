@@ -55,7 +55,8 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
   - Resource: `App\Filament\Resources\Roles\RoleResource`
   - Features: Fine-grained grid permissions checkboxes layout, grouped by navigation tabs, slide-over create/edit
 - **UI & Theme**:
-  - Primary Brand Color: Crimson Red (`#ed1c24`) matching the Seven Series Authentic Denim brand identity
+  - Primary Brand Color: Vibrant Red (`Color::Red` matching Seven Series Authentic Denim brand identity)
+  - Danger Accent: Orange (`Color::Orange`) to distinguish danger/delete/overdue states from the brand red
   - Brand Assets: Responsive `brand-logo.blade.php` (red '7' symbol on mobile, full "7 SEVEN SERIES Authentic Denim" logo on desktop), `favicon.png`, `apple-touch-icon.png`
   - Custom theme: `resources/css/filament/admin/theme.css` with Poppins font and modern corporate styling
   - Mobile Card Listing: Native app card layout on mobile via `->stackedOnMobile()` on all resources, eliminating horizontal scroll
@@ -66,4 +67,4 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
   - PWA Support: Installable PWA with `manifest.json`, Service Worker caching (`sw.js`), and install prompt banner for Android/iOS/Desktop
   - Password recovery: Enabled via native Filament `passwordReset()`
   - File lifecycle: Auto-deletion of removed, replaced, or deleted images from storage disk across all models
-- **Current Version**: `1.4.0`
+- **Current Version**: `1.4.1`

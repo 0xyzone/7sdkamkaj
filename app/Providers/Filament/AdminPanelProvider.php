@@ -43,12 +43,12 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->profile(EditProfile::class)
             ->colors([
-                'primary' => Color::hex('#ed1c24'),
+                'primary' => Color::Red,
                 'gray' => Color::Slate,
                 'info' => Color::Sky,
                 'success' => Color::Emerald,
                 'warning' => Color::Amber,
-                'danger' => Color::Rose,
+                'danger' => Color::Orange,
             ])
             ->sidebarCollapsibleOnDesktop()
             ->unsavedChangesAlerts()
