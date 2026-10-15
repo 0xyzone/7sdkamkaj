@@ -26,7 +26,7 @@ class SendNtfyNotification extends Command
      */
     public function handle(): int
     {
-        $topic = env('NTFY_TOPIC', 'ntfy-7sdkamkaj-notify-8f92b7');
+        $topic = env('NTFY_TOPIC', '7sdkamkaj-tasks');
         $message = $this->argument('message');
         $title = $this->option('title');
         $tags = $this->option('tags');

@@ -24,9 +24,9 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
 
 5. **TASK COMPLETION PUSH NOTIFICATION (ntfy.sh)**:
    - When a task is finalized, immediately send a push notification to the configured ntfy topic:
-     - Topic: `ntfy-7sdkamkaj-notify-8f92b7` (configurable via `NTFY_TOPIC` in `.env`)
+     - Topic: `7sdkamkaj-tasks` (configurable via `NTFY_TOPIC` in `.env`)
      - Command: `./scripts/notify.sh "<Task Summary>" "<Task Title>"` or `php artisan notify:task "<Message>" --title="<Title>"`
-     - URL to subscribe: `https://ntfy.sh/ntfy-7sdkamkaj-notify-8f92b7`
+     - URL to subscribe: `https://ntfy.sh/7sdkamkaj-tasks`
 
 ---
 

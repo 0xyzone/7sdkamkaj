@@ -5,9 +5,9 @@ MESSAGE="${1:-Task completed successfully}"
 TITLE="${2:-7 Series Kamkaj Update}"
 TAGS="${3:-white_check_mark}"
 
-TOPIC=$(grep "^NTFY_TOPIC=" .env | cut -d '=' -f2 | tr -d ' "' || echo "ntfy-7sdkamkaj-notify-8f92b7")
+TOPIC=$(grep "^NTFY_TOPIC=" .env | cut -d '=' -f2 | tr -d ' "' || echo "7sdkamkaj-tasks")
 if [ -z "$TOPIC" ]; then
-    TOPIC="ntfy-7sdkamkaj-notify-8f92b7"
+    TOPIC="7sdkamkaj-tasks"
 fi
 
 curl -s --max-time 10 \
