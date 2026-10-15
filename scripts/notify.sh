@@ -10,7 +10,7 @@ if [ -z "$TOPIC" ]; then
     TOPIC="ntfy-7sdkamkaj-notify-8f92b7"
 fi
 
-curl -s \
+curl -s --max-time 10 \
   -H "Title: $TITLE" \
   -H "Tags: $TAGS" \
   -H "Priority: default" \
