@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseItem extends Model
 {
@@ -33,6 +34,30 @@ class PurchaseItem extends Model
             'cost_price' => 'decimal:2',
             'is_active' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::updating(function (PurchaseItem $item): void {
+            if ($item->isDirty('images')) {
+                $old = (array) ($item->getOriginal('images') ?? []);
+                $new = (array) ($item->images ?? []);
+                $removed = array_diff($old, $new);
+                foreach ($removed as $file) {
+                    if (is_string($file)) {
+                        Storage::disk('public')->delete($file);
+                    }
+                }
+            }
+        });
+
+        static::deleted(function (PurchaseItem $item): void {
+            foreach ((array) ($item->images ?? []) as $file) {
+                if (is_string($file)) {
+                    Storage::disk('public')->delete($file);
+                }
+            }
+        });
     }
 
     /**

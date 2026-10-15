@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Purchase extends Model
 {
@@ -95,6 +96,59 @@ class Purchase extends Model
                 $purchase->payment_status = 'partial';
             } else {
                 $purchase->payment_status = 'unpaid';
+            }
+        });
+
+        static::updating(function (Purchase $purchase): void {
+            if ($purchase->isDirty('bill_images')) {
+                $old = (array) ($purchase->getOriginal('bill_images') ?? []);
+                $new = (array) ($purchase->bill_images ?? []);
+                $removed = array_diff($old, $new);
+                foreach ($removed as $file) {
+                    if (is_string($file)) {
+                        Storage::disk('public')->delete($file);
+                    }
+                }
+            }
+
+            if ($purchase->isDirty('product_images')) {
+                $old = (array) ($purchase->getOriginal('product_images') ?? []);
+                $new = (array) ($purchase->product_images ?? []);
+                $removed = array_diff($old, $new);
+                foreach ($removed as $file) {
+                    if (is_string($file)) {
+                        Storage::disk('public')->delete($file);
+                    }
+                }
+            }
+
+            if ($purchase->isDirty('payments')) {
+                $oldReceipts = collect((array) ($purchase->getOriginal('payments') ?? []))->pluck('receipt_image')->filter()->all();
+                $newReceipts = collect((array) ($purchase->payments ?? []))->pluck('receipt_image')->filter()->all();
+                $removed = array_diff($oldReceipts, $newReceipts);
+                foreach ($removed as $file) {
+                    if (is_string($file)) {
+                        Storage::disk('public')->delete($file);
+                    }
+                }
+            }
+        });
+
+        static::deleted(function (Purchase $purchase): void {
+            foreach ((array) ($purchase->bill_images ?? []) as $file) {
+                if (is_string($file)) {
+                    Storage::disk('public')->delete($file);
+                }
+            }
+            foreach ((array) ($purchase->product_images ?? []) as $file) {
+                if (is_string($file)) {
+                    Storage::disk('public')->delete($file);
+                }
+            }
+            foreach ((array) ($purchase->payments ?? []) as $payment) {
+                if (! empty($payment['receipt_image'])) {
+                    Storage::disk('public')->delete($payment['receipt_image']);
+                }
             }
         });
     }

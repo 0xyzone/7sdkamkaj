@@ -13,6 +13,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -23,6 +24,14 @@ class PurchasesTable
     {
         return $table
             ->columns([
+                ImageColumn::make('bill_images')
+                    ->label('Bills')
+                    ->disk('public')
+                    ->circular()
+                    ->stacked()
+                    ->limit(2)
+                    ->imageGallery(),
+
                 TextColumn::make('purchase_number')
                     ->label('Purchase Order')
                     ->searchable()
@@ -153,7 +162,10 @@ class PurchasesTable
                             ->label('Receipt / Voucher Photo')
                             ->image()
                             ->disk('public')
-                            ->directory('purchase-payments'),
+                            ->directory('purchase-payments')
+                            ->openable()
+                            ->downloadable()
+                            ->previewable(),
 
                         TextInput::make('notes')
                             ->label('Payment Notes / Remarks')

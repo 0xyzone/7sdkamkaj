@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TernaryFilter;
@@ -48,6 +49,16 @@ class VendorsTable
                         : 'No Contacts')
                     ->badge()
                     ->color(fn ($record): string => is_array($record?->contacts) && count($record->contacts) > 0 ? 'info' : 'gray'),
+
+                ImageColumn::make('qrs')
+                    ->label('QRs')
+                    ->disk('public')
+                    ->state(fn ($record) => collect((array) ($record->qrs ?? []))->pluck('qr_image')->filter()->values()->all())
+                    ->circular()
+                    ->stacked()
+                    ->limit(2)
+                    ->imageGallery()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('bank_accounts')
                     ->label('Banks')

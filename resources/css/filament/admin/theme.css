@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/* Corporate Clean Modern UI Polish with Poppins */
+:root {
+    --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.012em;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle modern corporate card elevations and smooth borders */
+.fi-ta-ctn,
+.fi-section,
+.fi-wi-widget > div {
+    border-radius: 0.875rem !important;
+    border-color: rgb(226 232 240 / 0.8) !important;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.02) !important;
+}
+
+.dark .fi-ta-ctn,
+.dark .fi-section,
+.dark .fi-wi-widget > div {
+    border-color: rgb(51 65 85 / 0.6) !important;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.2) !important;
+}
+
+/* Table styling polish */
+.fi-ta-header {
+    background-color: transparent !important;
+}
+
+.fi-ta-row:hover {
+    background-color: rgb(248 250 252 / 0.7) !important;
+}
+
+.dark .fi-ta-row:hover {
+    background-color: rgb(30 41 59 / 0.4) !important;
+}
+
+/* Polished badge styling */
+.fi-badge {
+    font-weight: 500 !important;
+    letter-spacing: 0.01em !important;
+    border-radius: 9999px !important;
+}
+
+/* Slide-over modal polish */
+.fi-modal-window {
+    border-top-left-radius: 1.25rem !important;
+    border-bottom-left-radius: 1.25rem !important;
+}
+
+/* Clean input borders */
+.fi-input-wrp {
+    border-radius: 0.625rem !important;
+}

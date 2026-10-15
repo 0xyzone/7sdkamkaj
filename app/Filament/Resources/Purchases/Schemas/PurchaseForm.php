@@ -231,7 +231,10 @@ class PurchaseForm
                                                     ->label('Payment Voucher / Receipt Photo')
                                                     ->image()
                                                     ->disk('public')
-                                                    ->directory('purchase-payments'),
+                                                    ->directory('purchase-payments')
+                                                    ->openable()
+                                                    ->downloadable()
+                                                    ->previewable(),
 
                                                 TextInput::make('notes')
                                                     ->label('Payment Remarks')
@@ -255,6 +258,9 @@ class PurchaseForm
                                             ->reorderable()
                                             ->disk('public')
                                             ->directory('purchase-bills')
+                                            ->openable()
+                                            ->downloadable()
+                                            ->previewable()
                                             ->panelLayout('grid')
                                             ->imageEditor()
                                             ->columnSpanFull(),
@@ -270,6 +276,9 @@ class PurchaseForm
                                             ->reorderable()
                                             ->disk('public')
                                             ->directory('purchase-products')
+                                            ->openable()
+                                            ->downloadable()
+                                            ->previewable()
                                             ->panelLayout('grid')
                                             ->imageEditor()
                                             ->columnSpanFull(),

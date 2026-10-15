@@ -24,7 +24,8 @@ class PurchaseItemsTable
                     ->circular()
                     ->stacked()
                     ->limit(3)
-                    ->disk('public'),
+                    ->disk('public')
+                    ->imageGallery(),
 
                 TextColumn::make('name')
                     ->label('Item Name')

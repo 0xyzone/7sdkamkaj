@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -21,6 +22,18 @@ class UserForm
                     ->description('Personal details, credentials, and role assignments.')
                     ->icon(Heroicon::OutlinedUser)
                     ->schema([
+                        FileUpload::make('avatar_url')
+                            ->label('Profile Avatar')
+                            ->image()
+                            ->avatar()
+                            ->disk('public')
+                            ->directory('avatars')
+                            ->openable()
+                            ->downloadable()
+                            ->previewable()
+                            ->maxSize(2048)
+                            ->columnSpanFull(),
+
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('name')

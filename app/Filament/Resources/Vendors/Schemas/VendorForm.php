@@ -218,6 +218,9 @@ class VendorForm
                                             ->image()
                                             ->disk('public')
                                             ->directory('vendor-qrs')
+                                            ->openable()
+                                            ->downloadable()
+                                            ->previewable()
                                             ->imageEditor()
                                             ->columnSpanFull(),
                                     ])

@@ -4,9 +4,9 @@
 
 Every AI assistant or agent working on this codebase MUST strictly adhere to the following rules at all times:
 
-1. **NO ASSUMPTIONS & ASK BEFORE EXECUTION**:
-   - DO NOT make any assumptions about architecture, requirements, configurations, or business logic.
-   - Always ask the user for confirmation and input whenever clarification or critical decisions are needed before executing any code.
+1. **AUTONOMOUS EXECUTION & NO CONFIRMATION GATES TO PROCEED**:
+   - Always proceed autonomously with the requested implementation without stopping to ask for permission to proceed.
+   - Execute tasks end-to-end adhering strictly to user requirements and established memory.
 
 2. **GIT COMMIT & PUSH TO MAIN ON TASK COMPLETION**:
    - Every time a task or feature is completed, stage the changes, create a clear and descriptive commit message, and push directly to `origin/main`.
@@ -50,24 +50,15 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
   - Path: `/`
   - Auth: Email & Password
   - Super Admin: `admin@admin.com`
-- **Role & Permissions**: `bezhansalleh/filament-shield` v4.3 with `spatie/laravel-permission`
-  - Gate interception enabled (`define_via_gate => true`)
-- **Modules**:
-  - **User Management** (`User Management` group):
-    - Model: `App\Models\User`
-    - Resource: `App\Filament\Resources\Users\UserResource`
-    - Status: `is_active` boolean
-  - **Purchase Module** (`Purchase` group):
-    - **Purchases**:
-      - Model: `App\Models\Purchase`
-      - Resource: `App\Filament\Resources\Purchases\PurchaseResource`
-      - Features: PO number, vendor selection, line items with auto-computed subtotals, payments tracking, bill & product images, quick 'Record Payment' slide-over action
-    - **Purchase Items**:
-      - Model: `App\Models\PurchaseItem`
-      - Resource: `App\Filament\Resources\PurchaseItems\PurchaseItemResource`
-      - Fields: name, category, UOM, cost_price, vendor_id (with quick inline creation), description, images (multiple)
-    - **Vendors**:
-      - Model: `App\Models\Vendor`
-      - Resource: `App\Filament\Resources\Vendors\VendorResource`
-      - Fields: name, email, address, pan_vat_number, website, contacts (optional), qrs (optional), bank_accounts (optional), notes, is_active
-- **Current Version**: `1.2.0`
+  - Super Admin Password: 'password'
+- **Role & Permissions**: `bezhansalleh/filament-shield` v4.3 with `agroezinger/filament-shield-enhanced` v0.3.0 & `spatie/laravel-permission`
+  - Resource: `App\Filament\Resources\Roles\RoleResource`
+  - Features: Fine-grained grid permissions checkboxes layout, grouped by navigation tabs, slide-over create/edit
+- **UI & Theme**:
+  - Custom theme: `resources/css/filament/admin/theme.css` with Poppins font and Slate/Indigo corporate styling
+  - Live auto-reload: Vite watching Filament schemas, views, and models
+  - Gallery preview: `al-saloul/filament-image-gallery` for interactive image lightbox
+  - Avatar management: `HasAvatar` on User model and `UserAvatarWidget` on Dashboard
+  - Password recovery: Enabled via native Filament `passwordReset()`
+  - File lifecycle: Auto-deletion of removed, replaced, or deleted images from storage disk across all models
+- **Current Version**: `1.3.0`
