@@ -1,58 +1,181 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="public/images/logo.png" alt="Seven Series Authentic Denim Logo" width="320">
 </p>
 
-## About Laravel
+<h1 align="center">7 Series Kamkaj (कामकाज)</h1>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+  <strong>Enterprise Operations & Procurement Platform for Seven Series Authentic Denim</strong>
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<p align="center">
+  <a href="https://github.com/0xyzone/7sdkamkaj/releases"><img src="https://img.shields.io/badge/version-1.5.0-red.svg?style=flat-square&color=ed1c24" alt="Version 1.5.0"></a>
+  <a href="https://laravel.com"><img src="https://img.shields.io/badge/laravel-13.x-FF2D20.svg?style=flat-square&logo=laravel" alt="Laravel 13"></a>
+  <a href="https://filamentphp.com"><img src="https://img.shields.io/badge/filament-v5-F59E0B.svg?style=flat-square&logo=filament" alt="Filament v5"></a>
+  <a href="https://www.php.net"><img src="https://img.shields.io/badge/php-8.3%2B-777BB4.svg?style=flat-square&logo=php" alt="PHP 8.3+"></a>
+  <a href="https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps"><img src="https://img.shields.io/badge/PWA-installable-0052CC.svg?style=flat-square" alt="PWA Installable"></a>
+  <a href="https://github.com/0xyzone/7sdkamkaj/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Proprietary-slate.svg?style=flat-square" alt="License"></a>
+</p>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 📌 Overview
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**7 Series Kamkaj** is the dedicated Enterprise Operations Management System engineered specifically for **Seven Series Authentic Denim**. Designed from the ground up to streamline garment manufacturing procurement, vendor banking, material cataloging, and financial accounts, the platform delivers an app-like experience optimized for smartphones, tablets, and desktop workstations.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## ✨ Key Features
 
-## Agentic Development
+### 🔴 Authentic Denim Brand Identity
+- **Vibrant Brand Palette**: Primary Crimson Red (`#ed1c24` / `Color::Red`) paired with a high-contrast **Orange** (`Color::Orange`) danger accent to eliminate visual conflict on destructive and overdue actions.
+- **Responsive Brand Header**: Adaptive logo component rendering the red **'7'** symbol on mobile screens and the full **"7 SEVEN SERIES Authentic Denim"** banner on desktop.
+- **Custom Corporate Typography**: Polished with [Poppins](https://fonts.google.com/specimen/Poppins) typography, clean micro-elevations, and dark-mode compatibility.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 📱 Native Mobile-First Layout
+- **Stacked Card Table Views**: Table rows automatically transform into native mobile cards via `->stackedOnMobile()` on small screens, completely eliminating horizontal scroll fatigue.
+- **Slide-Over Modals**: Every create and edit action opens in a slide-over modal (`->slideOver()`), maintaining context without full-page reloads.
+- **Compact Global Search**: Space-efficient search pill with `⌘K` badge that smoothly expands on focus, preserving topbar header room on small devices.
 
-```bash
-composer require laravel/boost --dev
+### 📲 Progressive Web App (PWA)
+- **Installable Native Experience**: Configured with `manifest.json`, Service Worker caching (`sw.js`), and responsive app icons (192px, 512px, maskable).
+- **Smart Install Prompt**: Built-in slide-up banner offering one-tap installation on Android, Chrome, and Edge, with step-by-step guidance for iOS Safari.
 
-php artisan boost:install
-```
+### 📦 Procurement & Material Catalog
+- **Purchase Items**: Manage raw materials (denim fabric, buttons, rivets, zippers, labels, threads) with SKU codes, units of measurement, categories, and media.
+- **In-Form Vendor Quick Add**: Create new vendors on the fly directly inside the item creation form without navigating away.
+- **Comprehensive Vendor Directory**: Multi-contact repeater, PAN/VAT tax numbers, optional bank details, and multi-channel QR codes (eSewa, Khalti, Bank).
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 💰 Purchases & Payment Ledger
+- **Purchase Orders**: Record purchase batches linked to vendors with line-item repeaters, unit prices, sub-totals, and purchase invoices.
+- **Payment Records**: Log payments against purchase orders with payment methods, reference numbers, remarks, and automatic outstanding balance calculations.
+- **Operational Dashboard Widgets**: Real-time stats for total purchase volume, outstanding vendor dues, and recent procurement activities.
 
-## Contributing
+### 🛡️ Security & Role-Based Access Control
+- **Filament Shield Enhanced**: Fine-grained permissions matrix with tabbed resource permission checkboxes.
+- **Super Admin Bypass**: Automated Gate bypass ensuring system administrators maintain uninterrupted access.
+- **Real-Time Avatar Sync**: Profile avatar upload with live browser event listener (`avatar-updated`) updating the topbar instantly without page reloads.
+- **Password Recovery**: Integrated self-service password reset.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 📜 In-App Changelog & Release Notes
+- **Interactive In-App Viewer**: Dedicated `/changelog` route displaying the version timeline, categorized changes (`Added`, `Changed`, `Fixed`), and release highlights.
+- **Clickable Version Indicators**: Sidebar and auth version badges link directly to the release history.
+- **Standardized Documentation**: Maintained synchronously in `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com).
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🛠️ Technology Stack
 
-## Security Vulnerabilities
+| Layer | Technologies |
+| :--- | :--- |
+| **Backend Framework** | [Laravel 13](https://laravel.com) (PHP 8.3+) |
+| **Admin Panel** | [Filament v5](https://filamentphp.com) |
+| **Permissions** | [Filament Shield](https://github.com/bezhanSalleh/filament-shield) & [Shield Enhanced](https://github.com/agroezinger/filament-shield-enhanced) |
+| **Styling & Theme** | Tailwind CSS with custom Filament Admin Theme & Poppins font |
+| **App Architecture** | Progressive Web App (PWA) with Service Worker caching |
+| **Notifications** | Automated [ntfy.sh](https://ntfy.sh) push notification workflow |
+| **Build Tools** | Vite 8, Composer, Laravel Pint |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 🚀 Getting Started
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Prerequisites
+- PHP 8.3 or higher with extensions: `pdo`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `gd` or `imagick`
+- Composer 2.x
+- Node.js (v18+) & npm
+- MySQL / MariaDB
+
+### Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/0xyzone/7sdkamkaj.git
+   cd 7sdkamkaj
+   ```
+
+2. **Install PHP dependencies**:
+   ```bash
+   composer install
+   ```
+
+3. **Install JavaScript dependencies & build assets**:
+   ```bash
+   npm install
+   npm run build
+   ```
+
+4. **Environment configuration**:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+5. **Configure your database in `.env`**:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=7sdkamkaj
+   DB_USERNAME=root
+   DB_PASSWORD=
+   
+   NTFY_TOPIC=7sdkamkaj-tasks
+   ```
+
+6. **Run database migrations and seeders**:
+   ```bash
+   php artisan migrate --seed
+   ```
+
+7. **Create storage symlink**:
+   ```bash
+   php artisan storage:link
+   ```
+
+8. **Serve the application**:
+   ```bash
+   php artisan serve
+   ```
+   Access the admin dashboard at `http://localhost:8000`.
+
+---
+
+## 🔐 Default Super Admin Credentials
+
+| Credential | Value |
+| :--- | :--- |
+| **URL** | `http://localhost:8000` |
+| **Email** | `admin@admin.com` |
+| **Password** | `password` |
+
+---
+
+## 📱 PWA & Mobile Installation
+
+1. Navigate to the panel on your mobile browser (Chrome on Android or Safari on iOS).
+2. On Android/Chrome, tap the **"Install 7 Series App"** prompt banner at the bottom of the screen.
+3. On iOS Safari, tap the **Share** button ($\uparrow$) and select **"Add to Home Screen"**.
+
+---
+
+## 🏷️ Release History
+
+Refer to [CHANGELOG.md](CHANGELOG.md) or visit `/changelog` within the application for full release details:
+
+- **v1.5.0** - In-App Changelog System & Comprehensive Documentation
+- **v1.4.1** - Vibrant Red primary and Orange danger color palette
+- **v1.4.0** - Crimson Red brand theme, responsive logos, PWA install prompt, mobile card table views, and live avatar sync
+- **v1.3.0** - Shield Enhanced, Corporate Poppins Theme, Avatars, Image Gallery, Password Reset, and Production Optimization
+- **v1.2.0** - Purchases tracking, slide-over modals, mobile-first layouts, and stats widgets
+- **v1.1.0** - Purchase Module with PurchaseItem and Vendor resources
+- **v1.0.2** - Shield role visibility with Super Admin gate bypass
+- **v1.0.1** - Notification topic update to `7sdkamkaj-tasks`
+- **v1.0.0** - Initial release with User management, Filament Shield, memory rules, and ntfy notifications
+
+---
+
+## 📄 License & Credits
+
+- **Proprietary**: Developed exclusively for **Seven Series Authentic Denim**.
+- All brand logos, trademarks, and garment assets are the property of Seven Series Authentic Denim.

@@ -65,6 +65,7 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
   - Gallery preview: `al-saloul/filament-image-gallery` for interactive image lightbox
   - Avatar management: `HasAvatar` on User model, custom `EditProfile` page with avatar upload, `UserAvatarWidget` on Dashboard, and real-time topbar avatar listener (`avatar-updated` event) without page reloads
   - PWA Support: Installable PWA with `manifest.json`, Service Worker caching (`sw.js`), and install prompt banner for Android/iOS/Desktop
+  - In-App Changelog: Interactive release notes timeline at `/changelog` (`App\Filament\Pages\Changelog`), centralized `ChangelogService`, clickable sidebar version pill, and Keep a Changelog `CHANGELOG.md`
   - Password recovery: Enabled via native Filament `passwordReset()`
   - File lifecycle: Auto-deletion of removed, replaced, or deleted images from storage disk across all models
-- **Current Version**: `1.4.1`
+- **Current Version**: `1.5.0`
