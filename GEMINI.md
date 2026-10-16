@@ -67,4 +67,10 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
   - In-App Changelog: Interactive release notes timeline at `/changelog` (`App\Filament\Pages\Changelog`), centralized `ChangelogService`, clickable sidebar version pill, and Keep a Changelog `CHANGELOG.md`
   - Password recovery: Enabled via native Filament `passwordReset()`
   - File lifecycle: Auto-deletion of removed, replaced, or deleted images from storage disk across all models
-- **Current Version**: `1.5.1`
+- **Expenses Module**:
+  - Resources: `App\Filament\Resources\ExpenseRecords\ExpenseRecordResource` and `App\Filament\Resources\ExpenseTypes\ExpenseTypeResource`
+  - Category: `Expenses` navigation group
+  - Dual Accounting Logic: Total incurred (bill/liability) vs actual paid (real factory cash spent); unpaid balances tracked as due liabilities
+  - Features: Auto-generated `EXP-YYYYMM-XXXX` numbers, multi-image uploads for invoices and item photos, payment transactions repeater, quick "Log Payment" table action, and `ExpenseStatsOverview` / `RecentExpensesWidget`
+  - Seeded Categories: Salary & Wages, Factory Rent, Groceries & Canteen, Office Resources, Machinery Maintenance, Utilities, Logistics, Packaging, and Misc
+- **Current Version**: `1.6.0`

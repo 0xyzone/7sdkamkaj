@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.5.1';
+    public const CURRENT_VERSION = '1.6.0';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,28 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.6.0',
+                'date' => '2026-10-16',
+                'title' => 'Factory Expenses Management & Cash Flow Accounting',
+                'type' => 'minor',
+                'badge' => 'New Module',
+                'badge_color' => 'primary',
+                'highlights' => 'Introduced the Expenses module for tracking factory expenditures (salary, rent, groceries, maintenance, utilities) with dual incurred vs actual cash outflow accounting, payment logs, and stats widgets.',
+                'changes' => [
+                    'added' => [
+                        'New `Expenses` category featuring `ExpenseRecordResource` and `ExpenseTypeResource`.',
+                        '`ExpenseRecord` model with auto-numbering (`EXP-YYYYMM-XXXX`), optional quantity and unit measurement, bill/invoice and item photo uploads.',
+                        'Payment transactions repeater with multi-method payment logging (Cash, eSewa, Khalti, QR, Bank Transfer, Cheque).',
+                        'Quick "Log Payment" slide-over table action for direct payment settlement from table rows.',
+                        'Auto-calculation of paid vs due amounts and payment settlement status (`unpaid`, `partial`, `paid`).',
+                        '`ExpenseStatsOverview` widget showing total incurred liabilities, actual cash spent, and outstanding unpaid dues.',
+                        '`RecentExpensesWidget` added to the admin dashboard.',
+                        'Seeded 9 standard factory expense categories: Salary, Rent, Groceries, Office Supplies, Machinery Maintenance, Utilities, Logistics, Packaging, and Misc.',
+                        'Generated Filament Shield permissions and policies for expense resources.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.5.1',
                 'date' => '2026-10-16',

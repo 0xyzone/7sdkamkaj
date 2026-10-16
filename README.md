@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/0xyzone/7sdkamkaj/releases"><img src="https://img.shields.io/badge/version-1.5.0-red.svg?style=flat-square&color=ed1c24" alt="Version 1.5.0"></a>
+  <a href="https://github.com/0xyzone/7sdkamkaj/releases"><img src="https://img.shields.io/badge/version-1.6.0-red.svg?style=flat-square&color=ed1c24" alt="Version 1.6.0"></a>
   <a href="https://laravel.com"><img src="https://img.shields.io/badge/laravel-13.x-FF2D20.svg?style=flat-square&logo=laravel" alt="Laravel 13"></a>
   <a href="https://filamentphp.com"><img src="https://img.shields.io/badge/filament-v5-F59E0B.svg?style=flat-square&logo=filament" alt="Filament v5"></a>
   <a href="https://www.php.net"><img src="https://img.shields.io/badge/php-8.3%2B-777BB4.svg?style=flat-square&logo=php" alt="PHP 8.3+"></a>
@@ -21,7 +21,7 @@
 
 ## 📌 Overview
 
-**7 Series Kamkaj** is the dedicated Enterprise Operations Management System engineered specifically for **Seven Series Authentic Denim**. Designed from the ground up to streamline garment manufacturing procurement, vendor banking, material cataloging, and financial accounts, the platform delivers an app-like experience optimized for smartphones, tablets, and desktop workstations.
+**7 Series Kamkaj** is the dedicated Enterprise Operations Management System engineered specifically for **Seven Series Authentic Denim**. Designed from the ground up to streamline garment manufacturing procurement, factory expenses, vendor banking, material cataloging, and financial accounts, the platform delivers an app-like experience optimized for smartphones, tablets, and desktop workstations.
 
 ---
 
@@ -29,7 +29,7 @@
 
 ### 🔴 Authentic Denim Brand Identity
 - **Vibrant Brand Palette**: Primary Crimson Red (`#ed1c24` / `Color::Red`) paired with a high-contrast **Orange** (`Color::Orange`) danger accent to eliminate visual conflict on destructive and overdue actions.
-- **Responsive Brand Header**: Adaptive logo component rendering the red **'7'** symbol on mobile screens and the full **"7 SEVEN SERIES Authentic Denim"** banner on desktop.
+- **Responsive Brand Header**: Adaptive logo component rendering the red **'7'** symbol on mobile screens and the full **"7 SEVEN SERIES Authentic Denim"** banner on desktop (with white-text logo in dark mode).
 - **Custom Corporate Typography**: Polished with [Poppins](https://fonts.google.com/specimen/Poppins) typography, clean micro-elevations, and dark-mode compatibility.
 
 ### 📱 Native Mobile-First Layout
@@ -50,6 +50,14 @@
 - **Purchase Orders**: Record purchase batches linked to vendors with line-item repeaters, unit prices, sub-totals, and purchase invoices.
 - **Payment Records**: Log payments against purchase orders with payment methods, reference numbers, remarks, and automatic outstanding balance calculations.
 - **Operational Dashboard Widgets**: Real-time stats for total purchase volume, outstanding vendor dues, and recent procurement activities.
+
+### 🧾 Expenses & Cash Flow Accounting
+- **Factory Expense Records**: Track factory overheads including worker salaries, factory rent, canteen groceries, machinery maintenance, utilities, and packaging.
+- **Dual Accounting Logics**: Separates booked cost / liabilities from actual cash spent; an expense is only counted as real factory cash outflow once payments are logged.
+- **Multi-Method Payment Ledger**: Record payments via Cash, eSewa, Khalti, Fonepay QR, Bank Transfer, Cheque, or ConnectIPS with receipt voucher uploads.
+- **Quick Row Actions**: Log payments directly from table rows with automatic balance due calculation.
+- **Multi-Image Attachments**: Store both bill/invoice photographs and physical purchased item/product photos with gallery lightbox previews.
+- **Expense Statistics Widgets**: `ExpenseStatsOverview` and `RecentExpensesWidget` monitoring total incurred costs, real cash spent, and pending payables.
 
 ### 🛡️ Security & Role-Based Access Control
 - **Filament Shield Enhanced**: Fine-grained permissions matrix with tabbed resource permission checkboxes.
@@ -163,6 +171,8 @@
 
 Refer to [CHANGELOG.md](CHANGELOG.md) or visit `/changelog` within the application for full release details:
 
+- **v1.6.0** - Factory Expenses Management, Incurred vs Cash Outflow Accounting, and Widgets
+- **v1.5.1** - White-Texted Brand Logo for Dark Theme
 - **v1.5.0** - In-App Changelog System & Comprehensive Documentation
 - **v1.4.1** - Vibrant Red primary and Orange danger color palette
 - **v1.4.0** - Crimson Red brand theme, responsive logos, PWA install prompt, mobile card table views, and live avatar sync

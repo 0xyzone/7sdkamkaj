@@ -4,6 +4,19 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-10-16
+
+### Added
+- **Expenses Management Module**: Complete resource suite under the `Expenses` category comprising `ExpenseRecordResource` and `ExpenseTypeResource`.
+- **Dual Accounting Logics**: Separated total incurred liabilities from actual cash outflow; an expense is only treated as real factory cash spent once payments are logged.
+- **Payment Transactions Ledger**: Multi-method payment repeater (Cash, eSewa, Khalti, QR, Bank Transfer, Cheque) tracking payment dates, amounts, transaction references, and payment receipt vouchers.
+- **Slide-Over Quick Payment Action**: One-tap "Log Payment" action from table rows with automatic outstanding due pre-fill.
+- **Multi-Image Attachments**: Support for uploading and previewing multiple vendor invoice/bill photos and purchased item/product photos via interactive lightbox gallery.
+- **Factory Expense Categories**: Seeded standard categories: Salary & Wages, Factory Rent, Groceries & Canteen, Office Resources, Machinery Maintenance, Utilities, Logistics, Packaging, and Misc.
+- **Expense Statistics & Dashboard Widgets**: `ExpenseStatsOverview` and `RecentExpensesWidget` displaying incurred liabilities, real cash outflow, pending payables, and settlement ratios.
+
+---
+
 ## [1.5.1] - 2026-10-16
 
 ### Added
