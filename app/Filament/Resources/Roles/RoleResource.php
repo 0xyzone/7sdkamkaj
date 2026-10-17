@@ -188,6 +188,7 @@ class RoleResource extends Resource
             ->recordActions([
                 EditAction::make()
                     ->slideOver()
+                    ->modalWidth('7xl')
                     ->mutateRecordDataUsing(function (array $data, Model $record): array {
                         $existing = $record->permissions->pluck('name')->all();
 
@@ -205,8 +206,16 @@ class RoleResource extends Resource
 
                         return $data;
                     })
-                    ->mutateFormDataBeforeSave(function (array $data): array {
-                        return Arr::only($data, ['name', 'guard_name']);
+                    ->using(function (Model $record, array $data): Model {
+                        $roleData = Arr::only($data, ['name', 'guard_name']);
+
+                        if (Utils::isTenancyEnabled() && Arr::has($data, Utils::getTenantModelForeignKey()) && filled($data[Utils::getTenantModelForeignKey()])) {
+                            $roleData[Utils::getTenantModelForeignKey()] = $data[Utils::getTenantModelForeignKey()];
+                        }
+
+                        $record->update($roleData);
+
+                        return $record;
                     })
                     ->after(function (Model $record, array $data): void {
                         $permissions = collect($data)

@@ -4,6 +4,17 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-10-17
+
+### Fixed
+- **Shield Role Actions BadMethodCallException**: Fixed unhandled `BadMethodCallException: Method Filament\Actions\CreateAction::mutateFormDataBeforeCreate does not exist` when accessing `/shield/roles`.
+- **Role Permission Synchronization**: Replaced invalid page lifecycle hook calls (`mutateFormDataBeforeCreate` and `mutateFormDataBeforeSave`) on `CreateAction` and `EditAction` with proper action `using()` and `after()` handlers.
+- **Selective Role Attribute Persistence**: Persisted only valid model attributes (`name`, `guard_name`, and optional tenant key) to the `roles` database table while preserving all checkbox permission states for Spatie permission synchronization.
+- **Desktop Slide-Over Modal Sizing**: Configured modal width to `7xl` (~70-80% screen width on desktop) for both Create and Edit role slide-overs.
+- **Automated Regression Testing**: Added feature tests covering Shield roles page authorization and Livewire list component action verification.
+
+---
+
 ## [1.6.0] - 2026-10-16
 
 ### Added

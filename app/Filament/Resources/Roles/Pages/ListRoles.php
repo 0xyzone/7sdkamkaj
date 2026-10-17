@@ -15,13 +15,20 @@ class ListRoles extends ListRecords
 {
     protected static string $resource = RoleResource::class;
 
-    protected function getActions(): array
+    protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
                 ->slideOver()
-                ->mutateFormDataBeforeCreate(function (array $data): array {
-                    return Arr::only($data, ['name', 'guard_name']);
+                ->modalWidth('7xl')
+                ->using(function (array $data, string $model): Model {
+                    $roleData = Arr::only($data, ['name', 'guard_name']);
+
+                    if (Utils::isTenancyEnabled() && Arr::has($data, Utils::getTenantModelForeignKey()) && filled($data[Utils::getTenantModelForeignKey()])) {
+                        $roleData[Utils::getTenantModelForeignKey()] = $data[Utils::getTenantModelForeignKey()];
+                    }
+
+                    return $model::create($roleData);
                 })
                 ->after(function (Model $record, array $data): void {
                     $permissions = collect($data)

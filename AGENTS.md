@@ -74,4 +74,4 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
   - Dual Accounting Logic: Total incurred (bill/liability) vs actual paid (real factory cash spent); unpaid balances tracked as due liabilities
   - Features: Auto-generated `EXP-YYYYMM-XXXX` numbers, multi-image uploads for invoices and item photos, payment transactions repeater, quick "Log Payment" table action, and `ExpenseStatsOverview` / `RecentExpensesWidget`
   - Seeded Categories: Salary & Wages, Factory Rent, Groceries & Canteen, Office Resources, Machinery Maintenance, Utilities, Logistics, Packaging, and Misc
-- **Current Version**: `1.6.0`
+- **Current Version**: `1.6.1`

@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.6.0';
+    public const CURRENT_VERSION = '1.6.1';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,24 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.6.1',
+                'date' => '2026-10-17',
+                'title' => 'Filament Shield Role Actions Compatibility Fix',
+                'type' => 'patch',
+                'badge' => 'Bug Fix',
+                'badge_color' => 'success',
+                'highlights' => 'Resolved BadMethodCallException when rendering and executing Shield Role create and edit slide-over actions, ensuring smooth permission synchronization and modal responsive sizing.',
+                'changes' => [
+                    'fixed' => [
+                        'Fixed unhandled `BadMethodCallException: Method Filament\Actions\CreateAction::mutateFormDataBeforeCreate does not exist` on `/shield/roles`.',
+                        'Replaced invalid page lifecycle hook calls (`mutateFormDataBeforeCreate` and `mutateFormDataBeforeSave`) on `CreateAction` and `EditAction` with proper action `using()` and `after()` handlers.',
+                        'Preserved all form permissions inputs during role creation and update while ensuring only valid role columns are persisted to the roles table.',
+                        'Configured slide-over modal width (`7xl`) for desktop layout to cover 70-80% of the screen.',
+                        'Added comprehensive feature tests covering Shield roles page access and Livewire component rendering.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.6.0',
                 'date' => '2026-10-16',
