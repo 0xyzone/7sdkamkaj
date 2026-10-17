@@ -68,10 +68,15 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
   - In-App Changelog: Interactive release notes timeline at `/changelog` (`App\Filament\Pages\Changelog`), centralized `ChangelogService`, clickable sidebar version pill, and Keep a Changelog `CHANGELOG.md`
   - Password recovery: Enabled via native Filament `passwordReset()`
   - File lifecycle: Auto-deletion of removed, replaced, or deleted images from storage disk across all models
+  - Inactive Account Redirection: Users with `is_active = false` are automatically redirected by `App\Http\Middleware\Authenticate` to `/account-deactivated` (`auth.account-deactivated` view) with a notice to contact the administrator/owner (no contact info) and a secure logout action.
 - **Expenses Module**:
   - Resources: `App\Filament\Resources\ExpenseRecords\ExpenseRecordResource` and `App\Filament\Resources\ExpenseTypes\ExpenseTypeResource`
   - Category: `Expenses` navigation group
   - Dual Accounting Logic: Total incurred (bill/liability) vs actual paid (real factory cash spent); unpaid balances tracked as due liabilities
   - Features: Auto-generated `EXP-YYYYMM-XXXX` numbers, multi-image uploads for invoices and item photos, payment transactions repeater, quick "Log Payment" table action, and `ExpenseStatsOverview` / `RecentExpensesWidget`
   - Seeded Categories: Salary & Wages, Factory Rent, Groceries & Canteen, Office Resources, Machinery Maintenance, Utilities, Logistics, Packaging, and Misc
-- **Current Version**: `1.6.1`
+- **Sales Module**:
+  - Resources: `App\Filament\Resources\Distributors\DistributorResource` and `App\Filament\Resources\SaleRecords\SaleRecordResource`
+  - Category: `Sales` navigation group
+  - Features: Distributor company profiles, multi-phone contact persons, bank accounts, auto-generated `SALE-YYYYMM-XXXX` numbers, bill numbers, on-the-fly distributor creation, separate attachments for bills/goods/receipts, multi-method payment repeater, auto-calculated paid/due balances, quick "Log Payment" table action, and `SaleStatsOverview` widget
+- **Current Version**: `1.7.0`

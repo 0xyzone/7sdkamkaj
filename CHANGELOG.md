@@ -4,6 +4,21 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-10-17
+
+### Added
+- **Sales Management Category**: Added complete `Sales` resource suite with `DistributorResource` and `SaleRecordResource`.
+- **Distributor Directory & Multi-Contacts**: Complete profile records for distributors including corporate registration (PAN/VAT, address, website), contact persons with multiple phone categories (Mobile, WhatsApp, Office), and optional bank accounts.
+- **Sales Record Ledger**: Auto-generated sales reference codes (`SALE-YYYYMM-XXXX`), bill/invoice number logging, on-the-fly distributor creation via slide-over modal, and fulfillment status workflow.
+- **Multi-Category Attachments**: Distinct file uploads for sales bills/tax invoices, finished goods/jeans photos, and payment receipt slips with auto-deletion of purged images.
+- **Multi-Instalment Payment Tracking**: Payment transactions repeater recording dates, amounts, modes (Bank Transfer, Fonepay QR, eSewa, Khalti, Cash, Cheque), transaction IDs, and receipt vouchers.
+- **Real-Time Settlement Accounting**: Automatic computation of collected amounts, outstanding receivables, and settlement status (`unpaid`, `partial`, `paid`).
+- **Quick "Log Payment" Table Action**: Slide-over modal action from table rows with automatic pre-fill of the outstanding balance.
+- **Sales Analytics Widget**: `SaleStatsOverview` reporting total billed revenue, collected cash flow, pending receivables, and active distributor counts.
+- **Inactive Account Protection & Redirection**: Inactive users (`is_active = false`) are automatically redirected to `/account-deactivated` showing a dedicated notice without contact details and a direct secure Log Out action.
+
+---
+
 ## [1.6.1] - 2026-10-17
 
 ### Fixed

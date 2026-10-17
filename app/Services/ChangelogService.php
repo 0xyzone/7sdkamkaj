@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.6.1';
+    public const CURRENT_VERSION = '1.7.0';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,29 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.7.0',
+                'date' => '2026-10-17',
+                'title' => 'Sales Management Module & Inactive Account Protection',
+                'type' => 'minor',
+                'badge' => 'New Module',
+                'badge_color' => 'primary',
+                'highlights' => 'Introduced the Sales module with Distributors and Sales Records, dual bill/goods photo attachments, payment ledger tracking, quick payment logs, sales analytics, and custom redirection for deactivated accounts.',
+                'changes' => [
+                    'added' => [
+                        'New `Sales` navigation category featuring `DistributorResource` and `SaleRecordResource`.',
+                        '`DistributorResource` managing corporate details (PAN/VAT, address, website, notes), attached contact persons with multiple phone types (Mobile, WhatsApp, Office), and optional banking details.',
+                        '`SaleRecordResource` with auto-generated reference numbers (`SALE-YYYYMM-XXXX`), bill number tracking, inline distributor creation from dropdown, and fulfillment status.',
+                        'Separate attachments for sales bills/invoices, finished goods photos, and payment receipt vouchers with automatic file cleanup on deletion/replacement.',
+                        'Multi-instalment payment repeater tracking receipt dates, payment modes (Cash, Bank Transfer, Fonepay QR, eSewa, Khalti, Cheque), and vouchers.',
+                        'Auto-calculation of paid amounts, outstanding due receivables, and payment status (`unpaid`, `partial`, `paid`).',
+                        'Quick "Log Payment" slide-over table action for instant settlement logging from the table view.',
+                        '`SaleStatsOverview` widget showing total billed revenue, collected cash, outstanding receivables, and active distributor counts.',
+                        'Deactivated account protection: inactive users (`is_active = false`) are automatically redirected to `/account-deactivated` displaying a clean notice without contact details and a secure Log Out action.',
+                        'Filament Shield permissions and policies generated for `DistributorResource` and `SaleRecordResource`.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.6.1',
                 'date' => '2026-10-17',
