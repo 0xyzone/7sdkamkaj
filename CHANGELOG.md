@@ -4,6 +4,13 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.6] - 2026-11-09
+
+### Fixed
+- **WebUSB Direct Test Print Action in Printers Table**: Added a dedicated client-side `USB Test` action in the Printers table for WebUSB printers. Clicking test on a WebUSB printer now communicates directly via your Brave browser to the USB printer instead of trying to dispatch via server CUPS.
+
+---
+
 ## [1.9.5] - 2026-11-09
 
 ### Added

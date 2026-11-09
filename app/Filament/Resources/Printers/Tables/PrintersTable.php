@@ -59,10 +59,16 @@ class PrintersTable
                     ->boolean(),
             ])
             ->recordActions([
+                Action::make('webusb_test_print')
+                    ->label('USB Test')
+                    ->visible(fn (Printer $record) => $record->type === 'webusb')
+                    ->view('filament.tables.actions.webusb-test-action'),
+
                 Action::make('test_print')
                     ->label('Test Print')
                     ->icon('heroicon-o-printer')
                     ->color('success')
+                    ->visible(fn (Printer $record) => $record->type !== 'webusb')
                     ->requiresConfirmation()
                     ->modalHeading('Send Test Print')
                     ->modalDescription('This will send a small test label to verify communication with this printer.')
