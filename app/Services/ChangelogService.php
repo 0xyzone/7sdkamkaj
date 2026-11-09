@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.7.0';
+    public const CURRENT_VERSION = '1.9.1';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,46 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.9.1',
+                'date' => '2026-11-09',
+                'title' => 'Standalone Photoshop-Style Label Studio & WYSIWYG Thermal Printing',
+                'type' => 'minor',
+                'badge' => 'Major Feature',
+                'badge_color' => 'primary',
+                'highlights' => 'Re-architected Thermal Label Studio as an independent, full-screen Photoshop-inspired application outside Filament. Includes left toolbar with tools (Move, Text, Pen, Eraser, Barcodes, QR, Shapes, Logo/Image Upload), central live 203 DPI canvas with rulers and zoom, right layers & properties inspector, and 1:1 pixel-perfect WYSIWYG thermal bitmap generation for Deli E886BW.',
+                'changes' => [
+                    'added' => [
+                        'Standalone route `/label-studio` outside Filament for distraction-free, full-featured label designing.',
+                        'Photoshop-style dark-mode desktop UI with left tool panel, top options bar, center scrollable canvas stage with zoom/fit, and right layers & inspector panel.',
+                        'Image & Logo Upload tool: upload any custom garment brand logo, wash care symbol, or graphic directly onto the label.',
+                        'Pixel-perfect WYSIWYG raster rendering: exports HTML5 canvas directly to 1-bit monochrome TSPL BITMAP data stream, ensuring the printed thermal sticker identically matches the screen design.',
+                        'Integrated layer management: re-order, lock, hide, or delete individual canvas layers.',
+                        'Direct Deli E886BW spooling with live printer status checking and batch copies.',
+                    ],
+                    'fixed' => [
+                        'Fixed non-dehydrated state for `standard_preset` virtual field.',
+                        'Escaped Blade template curly braces in label design placeholders.',
+                    ],
+                ],
+            ],
+            [
+                'version' => '1.8.0',
+                'date' => '2026-11-09',
+                'title' => 'Thermal Printer Management & Garment Label Design Module',
+                'type' => 'minor',
+                'badge' => 'New Module',
+                'badge_color' => 'primary',
+                'highlights' => 'Introduced Printing & Labels category with Printer hardware management and Label Templates for garment labeling with Deli E886BW thermal printer.',
+                'changes' => [
+                    'added' => [
+                        'Printer hardware resource supporting macOS CUPS auto-detection and raw TCP/IP network printers.',
+                        'Live printer status monitoring (Idle/Ready, Busy, Offline).',
+                        'Label Templates resource with standard presets (50x30mm, 50x70mm, 40x30mm, 60x40mm, 80x50mm, 100x150mm) and custom nozzle width validation.',
+                        'Direct TSPL command generation for barcodes, text, and geometric elements.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.7.0',
                 'date' => '2026-10-17',

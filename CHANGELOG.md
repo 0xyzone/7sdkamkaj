@@ -4,6 +4,15 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.2] - 2026-11-09
+
+### Added
+- **Photoshop-Style Standalone Label Studio Integration**: Seamlessly connected the sidebar navigation and template list directly to the independent Label Studio (`/label-studio`).
+- **Create & Edit Navigation Directing to Studio**: Replaced the previous modal popup in `ListLabelTemplates` and `LabelTemplatesTable` with direct links to the live Label Studio workstation (`/label-studio?new=1` and `/label-studio/{id}`).
+- **SPA URL Exception & Navigation Item**: Added `Label Studio` directly in the Filament sidebar under `Printing & Labels` with SPA URL exception to enable seamless full-screen canvas editing without modal constraints.
+
+---
+
 ## [1.9.0] - 2026-11-09
 
 ### Added

@@ -12,6 +12,7 @@ use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -54,6 +55,16 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->unsavedChangesAlerts()
             ->spa()
+            ->spaUrlExceptions([
+                '*/label-studio*',
+            ])
+            ->navigationItems([
+                NavigationItem::make('Label Studio')
+                    ->url('/label-studio')
+                    ->icon('heroicon-o-paint-brush')
+                    ->group('Printing & Labels')
+                    ->sort(0),
+            ])
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->globalSearchFieldSuffix(fn () => '⌘K')
             ->renderHook(

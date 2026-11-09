@@ -8,7 +8,6 @@ use App\Services\PrintService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -39,7 +38,7 @@ class LabelTemplatesTable
 
                 TextColumn::make('elements_count')
                     ->label('Design Elements')
-                    ->state(fn (LabelTemplate $record) => count($record->elements ?? []) . ' items')
+                    ->state(fn (LabelTemplate $record) => is_array($record->elements) ? (isset($record->elements['objects']) ? count($record->elements['objects']) : count($record->elements)) . ' items' : '0 items')
                     ->badge()
                     ->color('gray'),
 
@@ -54,6 +53,12 @@ class LabelTemplatesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
+                Action::make('edit_in_studio')
+                    ->label('Design in Studio')
+                    ->icon('heroicon-o-paint-brush')
+                    ->color('primary')
+                    ->url(fn (LabelTemplate $record) => url("/label-studio/{$record->id}")),
+
                 Action::make('print')
                     ->label('Send to Printer')
                     ->icon('heroicon-o-printer')
@@ -138,10 +143,6 @@ class LabelTemplatesTable
                                 ->send();
                         }
                     }),
-
-                EditAction::make()
-                    ->slideOver()
-                    ->modalWidth('7xl'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -150,4 +151,3 @@ class LabelTemplatesTable
             ]);
     }
 }
-
