@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.12.0';
+    public const CURRENT_VERSION = '1.13.0';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,22 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.13.0',
+                'date' => '2026-11-09',
+                'title' => 'Print Dialog Dynamic Variables Form with Real-Time Preview',
+                'type' => 'minor',
+                'badge' => 'Feature',
+                'badge_color' => 'primary',
+                'highlights' => 'The Print Dialog now dynamically inspects the active design and presents input fields for only the variables actually used (e.g. {{item_name}}, {{size}}, {{price}}, {{color}}, {{barcode}}). Typing in any field immediately updates the thermal 1-bit print preview in real-time before spooling.',
+                'changes' => [
+                    'added' => [
+                        'Design-specific variable scanner: only variables actually placed on the design are presented in the print dialog.',
+                        'Real-time live print preview: instant re-rendering of text, barcodes, and QR codes as soon as variable values are typed.',
+                        'Seamless sync: updated values persist across print jobs and sync with the Label Studio variables inspector.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.12.0',
                 'date' => '2026-11-09',

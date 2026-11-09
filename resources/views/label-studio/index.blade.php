@@ -191,13 +191,27 @@
                     <select id="printPrinter"></select>
                 </label>
                 <div class="printer-pill wide" id="dialogPrinterPill"><span class="dot"></span><span class="txt">—</span></div>
-                <label>Copies
-                    <input id="printCopies" type="number" min="1" max="500" value="1">
-                </label>
-                <label>Darkness <span class="hint" id="thresholdVal"></span>
-                    <input id="printThreshold" type="range" min="60" max="230" step="5">
-                </label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <label>Copies
+                        <input id="printCopies" type="number" min="1" max="500" value="1">
+                    </label>
+                    <label>Darkness <span class="hint" id="thresholdVal"></span>
+                        <input id="printThreshold" type="range" min="60" max="230" step="5">
+                    </label>
+                </div>
                 <label class="check"><input id="printDither" type="checkbox"> Dither photos / gradients</label>
+
+                {{-- Dynamic Variables Form (showing only variables used in this design) --}}
+                <div id="printVarsSection" class="print-vars-box">
+                    <div class="print-vars-head">
+                        <span style="display:flex; align-items:center; gap:6px;">
+                            <i data-icon="variable"></i> Design Variables
+                        </span>
+                        <span class="badge">Live Preview</span>
+                    </div>
+                    <div id="printVarsFields" style="display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+
                 <p class="hint" id="printInfo"></p>
                 <a class="hint link" id="downloadPng" download="label.png">Download bitmap (PNG)</a>
             </div>

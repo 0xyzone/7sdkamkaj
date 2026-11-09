@@ -4,6 +4,14 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2026-11-09
+
+### Added
+- **Print Dialog Dynamic Variables Form**: Opening the Print preview modal now automatically detects and presents an input form for only the variables actually present in the design (e.g. `{{item_name}}`, `{{size}}`, `{{price}}`, `{{color}}`, `{{barcode}}`). Unused variables are omitted to keep the form clean and focused.
+- **Instant Live Print Preview on Input**: Modifying any variable field in the print dialog immediately re-interpolates text layers, regenerates barcodes, and re-renders the 1-bit thermal print preview in real time without lag.
+
+---
+
 ## [1.12.0] - 2026-11-09
 
 ### Added

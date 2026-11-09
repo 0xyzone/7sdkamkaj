@@ -83,6 +83,7 @@
         queue: '<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="8" cy="14" r="1" fill="currentColor"/><circle cx="8" cy="18" r="1" fill="currentColor"/>',
         bluetooth: '<path d="m7 7 10 10-5 5V2l5 5L7 17"/>',
         usb: '<circle cx="12" cy="18" r="2"/><circle cx="6" cy="10" r="1.5"/><rect x="16.5" y="8" width="3" height="3"/><path d="M12 16V6M12 11l-6-2M12 9l6-2M9 5h6v3H9z"/>',
+        variable: '<path d="M8 3H6a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2 2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h2M16 3h2a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2 2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-2"/>',
     };
     const svg = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n] || ''}</svg>`;
     const icon = (n) => `<i data-icon="${n}">${svg(n)}</i>`;
@@ -135,6 +136,42 @@
 
     function interpolate(str) {
         return String(str ?? '').replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (m, k) => (k in state.vars ? state.vars[k] : m));
+    }
+
+    function formatVarTitle(key) {
+        const map = {
+            item_name: 'Article / Item Name',
+            size: 'Size',
+            price: 'Price / MRP',
+            color: 'Color',
+            barcode: 'Barcode',
+            sku: 'SKU',
+            brand: 'Brand',
+            batch: 'Batch / Lot',
+        };
+        if (map[key]) return map[key];
+        return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+
+    function getUsedVariables() {
+        const used = new Set();
+        const scan = (str) => {
+            if (!str || typeof str !== 'string') return;
+            const re = /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g;
+            let m;
+            while ((m = re.exec(str)) !== null) {
+                used.add(m[1]);
+            }
+        };
+        const walk = (o) => {
+            if (!o) return;
+            if (isText(o)) scan(o.text);
+            else if (o.elType === 'barcode') scan(o.barcodeValue);
+            else if (o.elType === 'qr') scan(o.qrValue);
+            if (o._objects) o._objects.forEach(walk);
+        };
+        canvas.getObjects().forEach(walk);
+        return Array.from(used);
     }
 
     async function api(url, body) {
@@ -1946,6 +1983,31 @@
         $('#printThreshold').value = state.threshold;
         $('#printDither').checked = state.dither;
         $('#printInfo').textContent = 'Rendering…';
+
+        // Filter and display ONLY variables used in the design
+        const usedVars = getUsedVariables();
+        const varsBox = $('#printVarsSection');
+        const varsContainer = $('#printVarsFields');
+        if (varsBox && varsContainer) {
+            if (usedVars.length > 0) {
+                varsBox.style.display = 'flex';
+                varsContainer.innerHTML = usedVars.map((k) => {
+                    const title = formatVarTitle(k);
+                    const val = state.vars[k] ?? '';
+                    return `<div class="print-var-row">
+                        <label class="print-var-label">
+                            <span>${esc(title)}</span>
+                            <code>&#123;&#123;${esc(k)}&#125;&#125;</code>
+                        </label>
+                        <input type="text" class="print-var-input" data-var="${esc(k)}" value="${esc(val)}" placeholder="${esc(title)}…">
+                    </div>`;
+                }).join('');
+            } else {
+                varsBox.style.display = 'none';
+                varsContainer.innerHTML = '';
+            }
+        }
+
         $('#printDialog').showModal();
         refreshPrinterStatus();
         previewSrc = await renderLabelCanvas();
@@ -2249,6 +2311,26 @@
     }
 
     function bindPrintDialog() {
+        const refreshPrintPreviewDebounced = debounce(async () => {
+            const info = $('#printInfo');
+            if (info) info.textContent = 'Updating preview…';
+            previewSrc = await renderLabelCanvas();
+            paintPreview();
+        }, 60);
+
+        $('#printVarsFields')?.addEventListener('input', (e) => {
+            const inp = e.target.closest('input[data-var]');
+            if (!inp) return;
+            const k = inp.dataset.var;
+            state.vars[k] = inp.value;
+            renderVars();
+            refreshPrintPreviewDebounced();
+        });
+
+        $('#printDialog')?.addEventListener('close', () => {
+            refreshAllDynamic();
+        });
+
         $('#printPrinter').addEventListener('change', (e) => { state.printerId = e.target.value ? +e.target.value : null; refreshPrinterStatus(); });
         $('#printCopies').addEventListener('input', (e) => { state.copies = e.target.value; });
         $('#printThreshold').addEventListener('input', (e) => { state.threshold = +e.target.value; paintPreview(); savePrefs(); });
