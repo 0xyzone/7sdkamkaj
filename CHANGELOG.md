@@ -4,7 +4,17 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.8.0] - 2026-11-09
+## [1.9.0] - 2026-11-09
+
+### Added
+- **Dedicated Thermal Label Studio (`/label-studio`)**: Replaced modal editing with an expansive, dedicated design workspace powered by Livewire and Alpine.js.
+- **Full Studio Layout**: Three-pane responsive workspace (Dimensions & presets, central high-precision 203 DPI thermal canvas board, and element style inspector).
+- **Template Switching & Instant Saving**: Seamlessly switch between saved templates from a top navigation bar or create new ones from scratch.
+- **Live Variable Simulation & Direct Spooling**: Test print directly to the connected Deli E886BW printer with custom copies and simulated garment data (`{{brand}}`, `{{item_name}}`, `{{size}}`, `{{price}}`, `{{barcode}}`).
+
+---
+
+## [1.8.2] - 2026-11-09
 
 ### Added
 - **Printing & Label Design Module**: New navigation category providing label template design and hardware printer management.
