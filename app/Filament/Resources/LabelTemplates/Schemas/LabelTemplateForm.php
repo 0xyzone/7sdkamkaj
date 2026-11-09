@@ -31,6 +31,7 @@ class LabelTemplateForm
 
                                 Select::make('standard_preset')
                                     ->label('Standard Size Preset')
+                                    ->dehydrated(false)
                                     ->options([
                                         '50x30' => '50mm × 30mm (Standard Garment Tag)',
                                         '50x70' => '50mm × 70mm (Garment Wash Care & Price)',

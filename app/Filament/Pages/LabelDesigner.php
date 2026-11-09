@@ -212,3 +212,4 @@ class LabelDesigner extends Page
         return Printer::where('is_active', true)->orderBy('name')->get();
     }
 }
+
