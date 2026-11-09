@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.10.0';
+    public const CURRENT_VERSION = '1.11.0';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,24 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.11.0',
+                'date' => '2026-11-09',
+                'title' => 'Native Vector SVG Importing & Path Line Editing',
+                'type' => 'minor',
+                'badge' => 'Major Feature',
+                'badge_color' => 'primary',
+                'highlights' => 'SVG files are now parsed as native vector paths rather than pixelated raster bitmaps. Vector graphics retain razor-sharp edges at all scales and zoom levels, automatically normalize to thermal black ink, and can be ungrouped into individual editable path lines that work with pen and vector styling tools.',
+                'changes' => [
+                    'added' => [
+                        'Native SVG vector parser: SVGs uploaded or dropped onto Label Studio are parsed into true vector paths with infinite sharpness.',
+                        'Automatic thermal ink normalization: colored SVG strokes and fills convert to clean black thermal ink (#000000).',
+                        'Vector Group & Path Line Inspector: control fill, stroke, line thickness (in mm), and dashed styling directly in the Properties panel.',
+                        'Ungroup into Paths (⇧⌘G): separate any vector group into individual vector curves and shapes to reposition, edit, or delete them.',
+                        'Group Paths (⌘G): combine multiple selected vector paths into a single unified vector group.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.10.0',
                 'date' => '2026-11-09',

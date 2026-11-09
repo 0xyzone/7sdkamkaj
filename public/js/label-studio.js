@@ -21,7 +21,7 @@
         'barcodeValue', 'barcodeFormat', 'barcodeModule', 'barcodeHeight', 'barcodeShowText',
         'qrValue', 'qrCell', 'qrEcc',
         'origSrc', 'imgThreshold', 'imgDither', 'imgInvert', 'imgRemoveWhite',
-        'imgBrightness', 'imgContrast', 'imageSmoothing', 'strokeUniform',
+        'imgBrightness', 'imgContrast', 'imageSmoothing', 'strokeUniform', 'strokeDashArray',
     ];
 
     const WEB_FONTS = ['Poppins', 'Inter', 'Montserrat', 'Oswald', 'Bebas Neue', 'Playfair Display', 'Roboto Mono'];
@@ -673,7 +673,125 @@
 
     const updateImageMonochromeDebounced = debounce(updateImageMonochrome, 120);
 
+    function parseSvgDataUrl(url) {
+        if (!url || !url.startsWith('data:image/svg+xml')) return null;
+        try {
+            if (url.includes(';base64,')) {
+                return atob(url.split(';base64,')[1]);
+            }
+            return decodeURIComponent(url.split(',')[1]);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function addSvgFromString(svgText, name, p) {
+        if (!svgText || typeof svgText !== 'string') return;
+        fabric.loadSVGFromString(svgText, (objects, options) => {
+            if (!objects || !objects.length) {
+                toast('Invalid SVG', 'Could not parse vector paths from this file.', 'error');
+                return;
+            }
+
+            // Normalize colors for thermal printing and ensure vector attributes
+            objects.forEach((obj, idx) => {
+                obj.set({
+                    strokeUniform: true,
+                    layerName: obj.layerName || `Path ${idx + 1}`,
+                });
+
+                // Normalize fill for thermal printing
+                if (obj.fill && obj.fill !== 'none') {
+                    const f = ('' + obj.fill).toLowerCase().trim();
+                    if (f === '#fff' || f === '#ffffff' || f === 'white' || f === 'rgb(255,255,255)') {
+                        obj.set('fill', '#ffffff');
+                    } else {
+                        obj.set('fill', '#000000');
+                    }
+                } else if (!obj.stroke || obj.stroke === 'none') {
+                    obj.set('fill', '#000000');
+                }
+
+                // Normalize stroke for thermal printing
+                if (obj.stroke && obj.stroke !== 'none') {
+                    const s = ('' + obj.stroke).toLowerCase().trim();
+                    if (s === '#fff' || s === '#ffffff' || s === 'white' || s === 'rgb(255,255,255)') {
+                        obj.set('stroke', '#ffffff');
+                    } else {
+                        obj.set('stroke', '#000000');
+                    }
+                }
+            });
+
+            const g = fabric.util.groupSVGElements(objects, options);
+            const gw = g.width || 100;
+            const gh = g.height || 100;
+            const targetW = W() * 0.5;
+            const targetH = H() * 0.5;
+            const s = Math.min(1, targetW / gw, targetH / gh);
+            g.scale(s);
+
+            const at = p || { x: (W() - g.getScaledWidth()) / 2, y: (H() - g.getScaledHeight()) / 2 };
+            g.set({
+                left: at.x,
+                top: at.y,
+                elType: 'vector',
+                layerName: name || 'Vector SVG',
+                strokeUniform: true,
+            });
+
+            placeAndSelect(g);
+            toast('Vector SVG Added', 'Imported as sharp vector paths. Click "Ungroup into Paths" to edit individual lines.', 'success');
+        });
+    }
+
+    function ungroup(group) {
+        if (!group) group = canvas.getActiveObject();
+        if (!group || group.type !== 'group') return;
+        const sel = group.toActiveSelection();
+        sel.getObjects().forEach((item, idx) => {
+            item.set({
+                strokeUniform: true,
+                elType: item.type === 'path' ? 'path' : 'shape',
+                layerName: item.layerName || `Path ${idx + 1}`,
+            });
+        });
+        canvas.requestRenderAll();
+        renderLayers();
+        renderProps();
+        pushHistory();
+        toast('Ungrouped', 'Vector paths separated into editable lines.', 'info');
+    }
+
+    function groupSelection() {
+        const sel = canvas.getActiveObject();
+        if (!sel || sel.type !== 'activeSelection') return;
+        const g = sel.toGroup();
+        g.set({ elType: 'vector', layerName: 'Vector Group', strokeUniform: true });
+        canvas.requestRenderAll();
+        renderLayers();
+        renderProps();
+        pushHistory();
+        toast('Grouped', 'Vector paths grouped together.', 'info');
+    }
+
     async function addImageFromURL(url, name, p) {
+        // If an SVG data URL or file is provided, import as sharp vectors
+        if (url.startsWith('data:image/svg+xml')) {
+            const svgText = parseSvgDataUrl(url);
+            if (svgText) { addSvgFromString(svgText, name, p); return; }
+        }
+        if (url.endsWith('.svg') || url.includes('.svg?')) {
+            try {
+                const resp = await fetch(url);
+                if (resp.ok) {
+                    const svgText = await resp.text();
+                    addSvgFromString(svgText, name, p);
+                    return;
+                }
+            } catch (e) { /* fallback to raster */ }
+        }
+
         let srcUrl = url;
         if (!url.startsWith('data:image/svg')) {
             srcUrl = await downscaleDataURL(url, Math.max(W(), H()) * 2);
@@ -714,7 +832,7 @@
             const g = fabric.util.groupSVGElements(objects, options);
             g.scaleToWidth(10 * DPMM);
             const at = p || { x: (W() - g.getScaledWidth()) / 2, y: (H() - g.getScaledHeight()) / 2 };
-            g.set({ left: at.x, top: at.y, elType: 'symbol', layerName: s.name });
+            g.set({ left: at.x, top: at.y, elType: 'symbol', layerName: s.name, strokeUniform: true });
             placeAndSelect(g);
         });
     }
@@ -724,15 +842,24 @@
         const file = e.target.files[0];
         e.target.value = '';
         if (!file) return;
-        if (file.size > 8 * 1024 * 1024) { toast('Image too large', 'Please use an image under 8 MB.', 'error'); return; }
+        if (file.size > 8 * 1024 * 1024) { toast('File too large', 'Please use a file under 8 MB.', 'error'); return; }
+        const isSvg = file.type.includes('svg') || file.name.toLowerCase().endsWith('.svg');
         const reader = new FileReader();
-        reader.onload = async () => {
-            let url = reader.result;
-            if (!file.type.includes('svg')) url = await downscaleDataURL(url, Math.max(W(), H()) * 2);
-            addImageFromURL(url, file.name.replace(/\.[^.]+$/, ''), pendingImagePoint);
-            pendingImagePoint = null;
-        };
-        reader.readAsDataURL(file);
+        if (isSvg) {
+            reader.onload = () => {
+                addSvgFromString(reader.result, file.name.replace(/\.[^.]+$/, ''), pendingImagePoint);
+                pendingImagePoint = null;
+            };
+            reader.readAsText(file);
+        } else {
+            reader.onload = async () => {
+                let url = reader.result;
+                url = await downscaleDataURL(url, Math.max(W(), H()) * 2);
+                addImageFromURL(url, file.name.replace(/\.[^.]+$/, ''), pendingImagePoint);
+                pendingImagePoint = null;
+            };
+            reader.readAsDataURL(file);
+        }
     });
 
     /* ----------------------------------------- Drag-to-draw (rect/ellipse/line) */
@@ -1152,8 +1279,29 @@
             h += `<div class="row">${fld('Thickness', numIn('strokeMm', r1(o.strokeWidth / DPMM), { unit: 'mm', step: 0.1, min: 0.1 }))}
                 <label class="check" style="align-self:end;height:26px"><input type="checkbox" data-p="dashed" ${o.strokeDashArray ? 'checked' : ''}> Dashed</label></div>`;
         } else if (o.type === 'path') {
-            h += fld('Colour', inkSeg('stroke', o.stroke, false));
-            h += fld('Thickness', numIn('strokeMm', r1(o.strokeWidth / DPMM), { unit: 'mm', step: 0.1, min: 0.1 }));
+            h += fld('Fill', inkSeg('fill', o.fill));
+            h += fld('Stroke', inkSeg('stroke', o.stroke));
+            h += `<div class="row">${fld('Thickness', numIn('strokeMm', r1((o.strokeWidth || 1) / DPMM), { unit: 'mm', step: 0.1, min: 0.1 }))}
+                <label class="check" style="align-self:end;height:26px"><input type="checkbox" data-p="dashed" ${o.strokeDashArray ? 'checked' : ''}> Dashed</label></div>`;
+            h += '<div class="hint">Vector path line: razor-sharp at all zoom levels. Move anchors or draw on it with Pen.</div>';
+        } else if (o.type === 'group' || o.elType === 'vector' || o.elType === 'symbol') {
+            const count = o.getObjects ? o.getObjects().length : 0;
+            h += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                    <span style="font-size:11px;font-weight:700;color:var(--text);letter-spacing:0.04em;text-transform:uppercase">Sharp Vector SVG</span>
+                    <span style="font-size:10px;background:#2563eb;color:#fff;padding:1px 6px;border-radius:4px;font-weight:700">${count ? count + ' PATHS' : 'VECTOR'}</span>
+                  </div>`;
+            h += fld('Fill', inkSeg('groupFill', o.fill));
+            h += fld('Stroke', inkSeg('groupStroke', o.stroke));
+            h += `<div class="row">${fld('Thickness', numIn('groupStrokeMm', r1((o.strokeWidth || 1) / DPMM), { unit: 'mm', step: 0.1, min: 0.1 }))}
+                <label class="check" style="align-self:end;height:26px"><input type="checkbox" data-p="groupDashed" ${o.strokeDashArray ? 'checked' : ''}> Dashed</label></div>`;
+            h += '<div class="btn-row" style="margin-top:6px"><button type="button" class="btn sm grow primary" data-action="ungroup" style="background:#2563eb;border-color:#1d4ed8"><i data-icon="edit"></i> Ungroup into Paths (⇧⌘G)</button><button type="button" class="btn sm" data-action="fitImage">Fit to label</button></div>';
+            h += '<div class="hint" style="margin-top:6px">Ungrouping separates each vector curve so you can edit, delete, or redraw individual path lines with tools.</div>';
+        } else if (o.type === 'activeSelection') {
+            h += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                    <span style="font-size:11px;font-weight:700;color:var(--text);letter-spacing:0.04em;text-transform:uppercase">Multiple Paths Selected</span>
+                    <span style="font-size:10px;background:#64748b;color:#fff;padding:1px 6px;border-radius:4px;font-weight:700">${o.size()} ITEMS</span>
+                  </div>`;
+            h += '<div class="btn-row" style="margin-top:6px"><button type="button" class="btn sm grow primary" data-action="groupSelection" style="background:#2563eb;border-color:#1d4ed8">Group Paths (⌘G)</button></div>';
         } else if (o.elType === 'image') {
             const thresh = o.imgThreshold ?? 140;
             const threshPct = Math.round(((thresh - 20) / 220) * 100);
@@ -1228,6 +1376,26 @@
                 o.set('stroke', val || null);
                 if (val && !o.strokeWidth) o.set('strokeWidth', 3);
                 rerender = true;
+                break;
+            case 'groupFill':
+                o.fill = val || '';
+                if (o.getObjects) o.getObjects().forEach((child) => child.set('fill', val || ''));
+                rerender = true;
+                break;
+            case 'groupStroke':
+                o.stroke = val || '';
+                if (o.getObjects) o.getObjects().forEach((child) => child.set('stroke', val || ''));
+                rerender = true;
+                break;
+            case 'groupStrokeMm':
+                const gsw = Math.max(0.5, (n || 1) * DPMM);
+                o.strokeWidth = gsw;
+                if (o.getObjects) o.getObjects().forEach((child) => child.set({ strokeWidth: gsw, strokeUniform: true }));
+                break;
+            case 'groupDashed':
+                const gdashes = val ? [(o.strokeWidth || 8) * 3, (o.strokeWidth || 8) * 2] : null;
+                o.strokeDashArray = gdashes;
+                if (o.getObjects) o.getObjects().forEach((child) => child.set('strokeDashArray', gdashes));
                 break;
             case 'strokeMm':
                 if (n > 0) o.set('strokeWidth', Math.max(1, n * DPMM));
@@ -2092,6 +2260,8 @@
             updateImageMonochrome(o);
             renderProps();
         },
+        ungroup: () => ungroup(canvas.getActiveObject()),
+        groupSelection,
     };
     document.addEventListener('click', (e) => {
         const a = e.target.closest('[data-action]');
@@ -2120,6 +2290,12 @@
         if (mod && k === 'v') { e.preventDefault(); paste(); return; }
         if (mod && k === 'd') { e.preventDefault(); duplicate(); return; }
         if (mod && k === 'a') { e.preventDefault(); selectAll(); return; }
+        if (mod && k === 'g') {
+            e.preventDefault();
+            if (e.shiftKey) ungroup(canvas.getActiveObject());
+            else groupSelection();
+            return;
+        }
         if (mod && (k === '=' || k === '+')) { e.preventDefault(); setZoom(state.zoom * 1.25); return; }
         if (mod && k === '-') { e.preventDefault(); setZoom(state.zoom / 1.25); return; }
         if (mod && k === '0') { e.preventDefault(); zoomFit(); return; }
@@ -2185,13 +2361,21 @@
                 const files = e.dataTransfer?.files;
                 if (!files || !files.length) return;
                 const file = files[0];
-                if (!file.type.startsWith('image/')) return;
+                const isSvg = file.type.includes('svg') || file.name.toLowerCase().endsWith('.svg');
+                if (!isSvg && !file.type.startsWith('image/')) return;
                 const pointer = canvas.getPointer(e);
                 const reader = new FileReader();
-                reader.onload = () => {
-                    addImageFromURL(reader.result, file.name.replace(/\.[^.]+$/, ''), pointer);
-                };
-                reader.readAsDataURL(file);
+                if (isSvg) {
+                    reader.onload = () => {
+                        addSvgFromString(reader.result, file.name.replace(/\.[^.]+$/, ''), pointer);
+                    };
+                    reader.readAsText(file);
+                } else {
+                    reader.onload = () => {
+                        addImageFromURL(reader.result, file.name.replace(/\.[^.]+$/, ''), pointer);
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
         }
     }

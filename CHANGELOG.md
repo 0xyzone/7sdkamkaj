@@ -4,6 +4,17 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2026-11-09
+
+### Added
+- **Native Vector SVG Importing**: SVG uploads and drag-and-drops are now processed through a native vector parser rather than converting into pixelated raster bitmaps. Vector curves retain razor-sharp edges at all resolutions and zoom levels.
+- **Thermal Ink Vector Normalization**: Non-thermal colored strokes and fills in SVGs automatically normalize to clean, solid black thermal ink (`#000000`).
+- **Ungroup into Paths (⇧⌘G)**: Vector groups can now be ungrouped with one click or shortcut into separate individual vector paths, letting you edit, move, restyle, or delete specific lines and shapes.
+- **Group Paths (⌘G)**: Re-combine multiple selected vector paths into a single unified vector group.
+- **Vector Path & Group Inspector**: Live Properties panel controls for vector Fill (`None`, `Black`, `White`), Stroke, Thickness (in mm), and Dashed line styles.
+
+---
+
 ## [1.10.0] - 2026-11-09
 
 ### Added
