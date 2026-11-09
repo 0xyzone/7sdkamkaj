@@ -118,6 +118,14 @@ class Printer extends Model
             ];
         }
 
+        if ($this->type === 'webusb') {
+            return [
+                'status' => 'webusb',
+                'message' => 'Direct USB (Client WebUSB in Brave/Chrome)',
+                'color' => 'success',
+            ];
+        }
+
         if ($this->type === 'bluetooth') {
             return [
                 'status' => 'bluetooth',

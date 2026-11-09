@@ -24,17 +24,18 @@ class PrinterForm
                 Select::make('type')
                     ->label('Connection Type')
                     ->options([
-                        'cups' => 'Local / USB / Mac CUPS Printer',
+                        'webusb' => 'Direct USB (Client Mac/Windows via WebUSB in Brave/Chrome)',
+                        'bluetooth' => 'Wireless Bluetooth (Direct Client Spool)',
+                        'cups' => 'Local CUPS Printer (Server local spooler)',
                         'network' => 'Network (Direct Raw TCP / IP Port 9100)',
-                        'bluetooth' => 'Wireless Bluetooth (Web Bluetooth / Direct)',
                     ])
-                    ->default('cups')
+                    ->default('webusb')
                     ->required()
                     ->live(),
 
                 Select::make('cups_queue_name')
                     ->label('CUPS Printer Queue')
-                    ->helperText('Detected CUPS printers or manual queue name (e.g. Deli_886BW). On a remote production server, use Network IP or Browser Bluetooth instead.')
+                    ->helperText('Detected CUPS printers or manual queue name (e.g. Deli_886BW).')
                     ->options(fn () => PrintService::getAvailableCupsPrinters())
                     ->searchable()
                     ->createOptionUsing(fn (string $data) => trim($data))

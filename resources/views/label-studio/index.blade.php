@@ -157,10 +157,13 @@
         </div>
         <footer class="dialog-foot">
             <button value="cancel" class="btn">Cancel</button>
+            <button type="button" class="btn" id="btnUsbPrint" style="background:#059669; color:#fff; border-color:#047857;" title="Direct client USB print via WebUSB in Brave/Chrome/Edge">
+                <i data-icon="usb"></i> Direct USB Print
+            </button>
             <button type="button" class="btn" id="btnBluetoothPrint" style="background:#2563eb; color:#fff; border-color:#1d4ed8;">
                 <i data-icon="bluetooth"></i> Bluetooth Print
             </button>
-            <button type="button" class="btn primary" id="btnDoPrint"><i data-icon="print"></i> Print</button>
+            <button type="button" class="btn primary" id="btnDoPrint"><i data-icon="print"></i> Spool via Server</button>
         </footer>
     </form>
 </dialog>

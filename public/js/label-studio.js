@@ -81,6 +81,7 @@
         panels: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',
         queue: '<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="8" cy="14" r="1" fill="currentColor"/><circle cx="8" cy="18" r="1" fill="currentColor"/>',
         bluetooth: '<path d="m7 7 10 10-5 5V2l5 5L7 17"/>',
+        usb: '<circle cx="12" cy="18" r="2"/><circle cx="6" cy="10" r="1.5"/><rect x="16.5" y="8" width="3" height="3"/><path d="M12 16V6M12 11l-6-2M12 9l6-2M9 5h6v3H9z"/>',
     };
     const svg = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n] || ''}</svg>`;
     const icon = (n) => `<i data-icon="${n}">${svg(n)}</i>`;
@@ -1511,6 +1512,144 @@
         refreshPrinterStatus();
     }
 
+    /* ------------------------------------------- Client-Side WebUSB Direct Print */
+    async function doUsbPrint() {
+        if (!navigator.usb) {
+            toast('WebUSB not supported', 'Please use Brave or Chrome on Mac/Windows. If using Brave, verify WebUSB permissions in brave://settings/content/usb.', 'error');
+            return;
+        }
+        if (!previewMono) return;
+
+        const btn = $('#btnUsbPrint');
+        btn.disabled = true;
+        btn.textContent = 'Selecting USB…';
+
+        let device = null;
+        try {
+            // Check for previously paired USB devices first
+            const paired = await navigator.usb.getDevices();
+            if (paired && paired.length > 0) {
+                // Look for Deli or USB printer
+                device = paired.find(d => (d.vendorId === 0x0471 || d.vendorId === 0x1137 || d.productName?.toLowerCase().includes('printer') || d.manufacturerName?.toLowerCase().includes('deli'))) || paired[0];
+            }
+
+            // Prompt user if no matching paired device found
+            if (!device) {
+                device = await navigator.usb.requestDevice({
+                    filters: [
+                        { vendorId: 0x1137 }, // Deli Printer vendor ID
+                        { vendorId: 0x0471 },
+                        { classCode: 0x07 },  // USB Printer Class
+                    ],
+                }).catch(async () => {
+                    // Fallback: allow selecting from any connected USB device
+                    return await navigator.usb.requestDevice({ filters: [] });
+                });
+            }
+
+            if (!device) {
+                btn.disabled = false;
+                btn.innerHTML = `${icon('usb')} Direct USB Print`;
+                return;
+            }
+
+            btn.textContent = 'Connecting…';
+            await device.open();
+
+            // Select configuration #1 if not selected
+            if (device.configuration === null) {
+                await device.selectConfiguration(1);
+            }
+
+            // Find USB printer interface and bulk OUT endpoint
+            let printerInterface = null;
+            let outEndpoint = null;
+
+            for (const iface of device.configuration.interfaces) {
+                for (const alt of iface.alternates) {
+                    for (const ep of alt.endpoints) {
+                        if (ep.direction === 'out' && ep.type === 'bulk') {
+                            printerInterface = iface;
+                            outEndpoint = ep;
+                            break;
+                        }
+                    }
+                    if (outEndpoint) break;
+                }
+                if (outEndpoint) break;
+            }
+
+            if (!printerInterface || !outEndpoint) {
+                throw new Error('No writable USB bulk endpoint found on ' + (device.productName || 'printer'));
+            }
+
+            // Claim interface
+            await device.claimInterface(printerInterface.interfaceNumber);
+
+            btn.textContent = 'Sending to printer…';
+
+            // Generate TSPL binary raster
+            const wDots = previewMono.width;
+            const hDots = previewMono.height;
+            const wBytes = Math.ceil(wDots / 8);
+            const ctx = previewMono.getContext('2d');
+            const imgData = ctx.getImageData(0, 0, wDots, hDots).data;
+
+            const header = `SIZE ${state.widthMm} mm, ${state.heightMm} mm\nGAP ${state.gapMm} mm, 0 mm\nDIRECTION ${state.direction}\nCLS\nBITMAP 0,0,${wBytes},${hDots},0,`;
+            const footer = `\nPRINT ${clamp(parseInt(state.copies, 10) || 1, 1, 500)}\n`;
+
+            const encoder = new TextEncoder();
+            const headerBytes = encoder.encode(header);
+            const footerBytes = encoder.encode(footer);
+
+            const bitmapBytes = new Uint8Array(wBytes * hDots);
+            for (let y = 0; y < hDots; y++) {
+                for (let xByte = 0; xByte < wBytes; xByte++) {
+                    let byte = 0;
+                    for (let bit = 0; bit < 8; bit++) {
+                        const xx = xByte * 8 + bit;
+                        if (xx < wDots) {
+                            const idx = (y * wDots + xx) * 4;
+                            if (imgData[idx] > 128) {
+                                byte |= (1 << (7 - bit));
+                            }
+                        } else {
+                            byte |= (1 << (7 - bit));
+                        }
+                    }
+                    bitmapBytes[y * wBytes + xByte] = byte;
+                }
+            }
+
+            const total = new Uint8Array(headerBytes.length + bitmapBytes.length + footerBytes.length);
+            total.set(headerBytes, 0);
+            total.set(bitmapBytes, headerBytes.length);
+            total.set(footerBytes, headerBytes.length + bitmapBytes.length);
+
+            // Transfer in chunks of 512 bytes (standard USB packet size)
+            const CHUNK_SIZE = 512;
+            for (let offset = 0; offset < total.length; offset += CHUNK_SIZE) {
+                const chunk = total.slice(offset, offset + CHUNK_SIZE);
+                await device.transferOut(outEndpoint.endpointNumber, chunk);
+            }
+
+            toast('Direct USB Print Dispatched', `Label sent directly via USB to ${device.productName || 'Deli Printer'}!`, 'success');
+            $('#printDialog').close();
+
+            // Release interface
+            await device.releaseInterface(printerInterface.interfaceNumber);
+            await device.close();
+        } catch (err) {
+            toast('USB Print Error', err.message || 'Device communication failed', 'error');
+            if (device && device.opened) {
+                try { await device.close(); } catch (_) {}
+            }
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `${icon('usb')} Direct USB Print`;
+        }
+    }
+
     /* ------------------------------------------- Wireless Web Bluetooth Print */
     async function doBluetoothPrint() {
         if (!navigator.bluetooth) {
@@ -1649,6 +1788,7 @@
         $('#printDither').addEventListener('change', (e) => { state.dither = e.target.checked; paintPreview(); savePrefs(); });
         $('#btnDoPrint').addEventListener('click', doPrint);
         $('#btnBluetoothPrint')?.addEventListener('click', doBluetoothPrint);
+        $('#btnUsbPrint')?.addEventListener('click', doUsbPrint);
     }
 
     /* --------------------------------------------------------- Save / open */

@@ -4,6 +4,14 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.5] - 2026-11-09
+
+### Added
+- **Direct Client WebUSB Thermal Printing**: Added browser-level native WebUSB printing directly in Brave / Chrome / Edge on Mac & Windows PC. Enables instant zero-driver, zero-server-cable printing to Deli E886BW from production cloud deployments.
+- **Client WebUSB Printer Profile**: Added `Direct USB (Client Mac/Windows via WebUSB in Brave/Chrome)` connection type to Printer management.
+
+---
+
 ## [1.9.4] - 2026-11-09
 
 ### Added
