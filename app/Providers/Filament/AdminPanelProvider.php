@@ -84,6 +84,10 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('filament.components.avatar-listener'),
             )
             ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn () => view('filament.components.quick-print-scripts'),
+            )
+            ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
                 fn () => view('filament.components.auth-version-badge'),
             )

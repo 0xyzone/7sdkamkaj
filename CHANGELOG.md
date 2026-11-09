@@ -4,6 +4,17 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.2] - 2026-11-09
+
+### Fixed
+- **Quick Print Modal Alpine ReferenceError & Blank Canvas**: Resolved `Uncaught ReferenceError: quickPrintComponent_2 is not defined`, `loading is not defined`, and cascading Alpine expression errors when opening the Print slide-over modal on `/label-templates`.
+- **Pre-Loaded Canvas & Barcode Engines**: Externalized the slide-over thermal print component into `public/js/quick-print.js` and registered core engines (`fabric.js`, `JsBarcode`, `qrcode`, `quick-print.js`) globally via `PanelsRenderHook::BODY_END` in `AdminPanelProvider.php`, guaranteeing dependencies are parsed and active in browser memory prior to Livewire modal DOM injection.
+- **Defensive Alpine Fallback State**: Guarded root `x-data` with `window.quickPrintFallback` ensuring reactive properties (`loading`, `printingBt`, `printingServer`, `vars`, etc.) are always defined, preventing DevTools console crashes.
+- **Blade String Interpolation Escaping**: Fixed `Undefined constant "barcode"` PHP error by escaping raw Blade template patterns.
+- **Canvas Mount Detection**: Added DOM element discovery retry in `renderPreview()` to seamlessly handle modal slide-over transition timings.
+
+---
+
 ## [1.15.1] - 2026-11-09
 
 ### Fixed

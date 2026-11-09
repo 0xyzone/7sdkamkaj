@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.15.1';
+    public const CURRENT_VERSION = '1.15.2';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,24 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.15.2',
+                'date' => '2026-11-09',
+                'title' => 'Quick Print Slide-Over Alpine ReferenceError & Pre-Load Engine Fix',
+                'type' => 'patch',
+                'badge' => 'Fix',
+                'badge_color' => 'success',
+                'highlights' => 'Eliminated JavaScript console ReferenceErrors (quickPrintComponent_2 is not defined, loading is not defined) and blank preview canvas when opening the Quick Print modal on /label-templates. Pre-loaded canvas engines and quick-print.js globally via AdminPanelProvider and guarded Alpine state with fallback defaults.',
+                'changes' => [
+                    'fixed' => [
+                        'Fixed quickPrintComponent_2 is not defined and loading is not defined Alpine errors on modal injection.',
+                        'Externalized the thermal print pipeline into public/js/quick-print.js and pre-loaded globally via AdminPanelProvider BODY_END hook.',
+                        'Added resilient x-data fallback guard preventing any undefined Alpine state variables.',
+                        'Escaped raw barcode interpolation patterns in Blade to eliminate Undefined constant "barcode" errors.',
+                        'Added DOM retry in renderPreview to reliably target canvas during slide-over animations.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.15.1',
                 'date' => '2026-11-09',
