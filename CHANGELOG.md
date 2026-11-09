@@ -4,6 +4,14 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.7] - 2026-11-09
+
+### Changed
+- **Direct Label Studio Print Redirection**: Simplified row actions on the Label Templates table to directly launch Label Studio (`/label-studio/{id}`) for both design and printing. Eliminates disjointed server-side modal forms and leverages browser-direct WebUSB and Bluetooth print dispatch.
+- **Cleaned Navigation Group**: Removed separate `Printers` resource from the sidebar navigation (`shouldRegisterNavigation = false`), unifying all printer selection and connection handling inside Label Studio.
+
+---
+
 ## [1.9.6] - 2026-11-09
 
 ### Fixed
