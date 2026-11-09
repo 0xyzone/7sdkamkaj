@@ -118,6 +118,14 @@ class Printer extends Model
             ];
         }
 
+        if ($this->type === 'bluetooth') {
+            return [
+                'status' => 'bluetooth',
+                'message' => 'Wireless Bluetooth (Direct Client Spool)',
+                'color' => 'info',
+            ];
+        }
+
         return [
             'status' => 'unknown',
             'message' => 'Unknown printer type',

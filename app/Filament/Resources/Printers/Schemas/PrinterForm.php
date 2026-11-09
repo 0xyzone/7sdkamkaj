@@ -26,6 +26,7 @@ class PrinterForm
                     ->options([
                         'cups' => 'Local / USB / Mac CUPS Printer',
                         'network' => 'Network (Direct Raw TCP / IP Port 9100)',
+                        'bluetooth' => 'Wireless Bluetooth (Web Bluetooth / Direct)',
                     ])
                     ->default('cups')
                     ->required()
@@ -33,15 +34,17 @@ class PrinterForm
 
                 Select::make('cups_queue_name')
                     ->label('CUPS Printer Queue')
-                    ->helperText('Detected printers currently connected to this computer / server.')
+                    ->helperText('Detected CUPS printers or manual queue name (e.g. Deli_886BW). On a remote production server, use Network IP or Browser Bluetooth instead.')
                     ->options(fn () => PrintService::getAvailableCupsPrinters())
                     ->searchable()
+                    ->createOptionUsing(fn (string $data) => trim($data))
                     ->visible(fn ($get) => $get('type') === 'cups')
                     ->required(fn ($get) => $get('type') === 'cups'),
 
                 TextInput::make('ip_address')
                     ->label('Printer IP Address')
                     ->placeholder('192.168.1.150')
+                    ->helperText('Enter the local Wi-Fi or LAN IP address of your printer.')
                     ->visible(fn ($get) => $get('type') === 'network')
                     ->required(fn ($get) => $get('type') === 'network'),
 
@@ -49,6 +52,7 @@ class PrinterForm
                     ->label('Port')
                     ->numeric()
                     ->default(9100)
+                    ->helperText('Standard raw socket printing port is 9100.')
                     ->visible(fn ($get) => $get('type') === 'network')
                     ->required(fn ($get) => $get('type') === 'network'),
 

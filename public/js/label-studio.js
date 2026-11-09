@@ -80,6 +80,7 @@
         safe: '<rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10" stroke-dasharray="2 2"/>',
         panels: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',
         queue: '<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="8" cy="14" r="1" fill="currentColor"/><circle cx="8" cy="18" r="1" fill="currentColor"/>',
+        bluetooth: '<path d="m7 7 10 10-5 5V2l5 5L7 17"/>',
     };
     const svg = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n] || ''}</svg>`;
     const icon = (n) => `<i data-icon="${n}">${svg(n)}</i>`;
@@ -1510,12 +1511,144 @@
         refreshPrinterStatus();
     }
 
+    /* ------------------------------------------- Wireless Web Bluetooth Print */
+    async function doBluetoothPrint() {
+        if (!navigator.bluetooth) {
+            toast('Web Bluetooth not supported', 'Please use Chrome, Edge, or Arc browser on desktop/Android with Bluetooth turned on.', 'error');
+            return;
+        }
+        if (!previewMono) return;
+
+        const btn = $('#btnBluetoothPrint');
+        btn.disabled = true;
+        btn.textContent = 'Searching…';
+
+        try {
+            // Request Bluetooth device with standard printer services or accept all
+            const device = await navigator.bluetooth.requestDevice({
+                filters: [
+                    { namePrefix: 'Deli' },
+                    { namePrefix: '886' },
+                    { namePrefix: 'Printer' },
+                ],
+                optionalServices: [
+                    '000018f0-0000-1000-8000-00805f9b34fb', // Standard Print service
+                    '49535343-fe7d-4ae5-8fa9-9fafd205e455', // ISSC transparent UART
+                    '0000e0ff-0000-1000-8000-00805f9b34fb',
+                    '0000ff00-0000-1000-8000-00805f9b34fb',
+                ],
+                acceptAllDevices: false,
+            }).catch(async () => {
+                // Fallback: prompt for any paired Bluetooth device
+                return await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: [
+                        '000018f0-0000-1000-8000-00805f9b34fb',
+                        '49535343-fe7d-4ae5-8fa9-9fafd205e455',
+                        '0000e0ff-0000-1000-8000-00805f9b34fb',
+                        '0000ff00-0000-1000-8000-00805f9b34fb',
+                    ],
+                });
+            });
+
+            if (!device) {
+                btn.disabled = false;
+                btn.innerHTML = `${icon('bluetooth')} Bluetooth Print`;
+                return;
+            }
+
+            btn.textContent = 'Connecting…';
+            const server = await device.gatt.connect();
+
+            // Find first writable characteristic
+            let writeChar = null;
+            const services = await server.getPrimaryServices().catch(() => []);
+            for (const s of services) {
+                const chars = await s.getCharacteristics().catch(() => []);
+                for (const c of chars) {
+                    if (c.properties.write || c.properties.writeWithoutResponse) {
+                        writeChar = c;
+                        break;
+                    }
+                }
+                if (writeChar) break;
+            }
+
+            if (!writeChar) {
+                throw new Error('Could not find a writable Bluetooth printing characteristic on ' + device.name);
+            }
+
+            btn.textContent = 'Sending dots…';
+
+            // Generate TSPL raster binary
+            const wDots = previewMono.width;
+            const hDots = previewMono.height;
+            const wBytes = Math.ceil(wDots / 8);
+            const ctx = previewMono.getContext('2d');
+            const imgData = ctx.getImageData(0, 0, wDots, hDots).data;
+
+            const header = `SIZE ${state.widthMm} mm, ${state.heightMm} mm\nGAP ${state.gapMm} mm, 0 mm\nDIRECTION ${state.direction}\nCLS\nBITMAP 0,0,${wBytes},${hDots},0,`;
+            const footer = `\nPRINT ${clamp(parseInt(state.copies, 10) || 1, 1, 500)}\n`;
+
+            const encoder = new TextEncoder();
+            const headerBytes = encoder.encode(header);
+            const footerBytes = encoder.encode(footer);
+
+            const bitmapBytes = new Uint8Array(wBytes * hDots);
+            for (let y = 0; y < hDots; y++) {
+                for (let xByte = 0; xByte < wBytes; xByte++) {
+                    let byte = 0;
+                    for (let bit = 0; bit < 8; bit++) {
+                        const xx = xByte * 8 + bit;
+                        if (xx < wDots) {
+                            const idx = (y * wDots + xx) * 4;
+                            if (imgData[idx] > 128) {
+                                byte |= (1 << (7 - bit));
+                            }
+                        } else {
+                            byte |= (1 << (7 - bit));
+                        }
+                    }
+                    bitmapBytes[y * wBytes + xByte] = byte;
+                }
+            }
+
+            const total = new Uint8Array(headerBytes.length + bitmapBytes.length + footerBytes.length);
+            total.set(headerBytes, 0);
+            total.set(bitmapBytes, headerBytes.length);
+            total.set(footerBytes, headerBytes.length + bitmapBytes.length);
+
+            // Chunk transfer over Bluetooth BLE MTU (typically 128 to 512 bytes)
+            const CHUNK_SIZE = 120;
+            for (let offset = 0; offset < total.length; offset += CHUNK_SIZE) {
+                const chunk = total.slice(offset, offset + CHUNK_SIZE);
+                if (writeChar.writeValueWithoutResponse) {
+                    await writeChar.writeValueWithoutResponse(chunk);
+                } else {
+                    await writeChar.writeValue(chunk);
+                }
+                // Short throttle to prevent buffer overrun on thermal microcontroller
+                await new Promise((r) => setTimeout(r, 15));
+            }
+
+            toast('Bluetooth print dispatched', `Sent to ${device.name || 'Deli Printer'}!`, 'success');
+            $('#printDialog').close();
+            setTimeout(() => device.gatt?.disconnect(), 2000);
+        } catch (err) {
+            toast('Bluetooth error', err.message || 'Connection cancelled', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `${icon('bluetooth')} Bluetooth Print`;
+        }
+    }
+
     function bindPrintDialog() {
         $('#printPrinter').addEventListener('change', (e) => { state.printerId = e.target.value ? +e.target.value : null; refreshPrinterStatus(); });
         $('#printCopies').addEventListener('input', (e) => { state.copies = e.target.value; });
         $('#printThreshold').addEventListener('input', (e) => { state.threshold = +e.target.value; paintPreview(); savePrefs(); });
         $('#printDither').addEventListener('change', (e) => { state.dither = e.target.checked; paintPreview(); savePrefs(); });
         $('#btnDoPrint').addEventListener('click', doPrint);
+        $('#btnBluetoothPrint')?.addEventListener('click', doBluetoothPrint);
     }
 
     /* --------------------------------------------------------- Save / open */

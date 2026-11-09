@@ -4,6 +4,14 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.4] - 2026-11-09
+
+### Added
+- **Wireless Bluetooth Thermal Printing**: Direct browser-to-printer wireless printing via Web Bluetooth API for Deli E886BW and compatible TSPL label printers without requiring USB cables or print server configurations.
+- **Production Server & Bluetooth Connection Types**: Updated printer form to support `Wireless Bluetooth`, direct `Network (IP:Port)`, and `CUPS` with manual queue creation when running on remote cloud production hosts where local Mac USB devices are not directly attached.
+
+---
+
 ## [1.9.3] - 2026-11-09
 
 ### Added

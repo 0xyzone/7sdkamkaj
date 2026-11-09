@@ -157,6 +157,9 @@
         </div>
         <footer class="dialog-foot">
             <button value="cancel" class="btn">Cancel</button>
+            <button type="button" class="btn" id="btnBluetoothPrint" style="background:#2563eb; color:#fff; border-color:#1d4ed8;">
+                <i data-icon="bluetooth"></i> Bluetooth Print
+            </button>
             <button type="button" class="btn primary" id="btnDoPrint"><i data-icon="print"></i> Print</button>
         </footer>
     </form>
