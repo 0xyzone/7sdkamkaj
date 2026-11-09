@@ -86,6 +86,7 @@
         queue: '<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="8" cy="14" r="1" fill="currentColor"/><circle cx="8" cy="18" r="1" fill="currentColor"/>',
         bluetooth: '<path d="m7 7 10 10-5 5V2l5 5L7 17"/>',
         usb: '<circle cx="12" cy="18" r="2"/><circle cx="6" cy="10" r="1.5"/><rect x="16.5" y="8" width="3" height="3"/><path d="M12 16V6M12 11l-6-2M12 9l6-2M9 5h6v3H9z"/>',
+        share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>',
         variable: '<path d="M8 3H6a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2 2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h2M16 3h2a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2 2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-2"/>',
     };
     const svg = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n] || ''}</svg>`;
@@ -578,37 +579,55 @@
     });
 
     /* ---------------------------------------------------------------- Tools */
-    const TOOLS = [
+    const TOOLS_ROW1 = [
         { id: 'select', icon: 'select', key: 'V', tip: 'Move / Select' },
         { id: 'text', icon: 'text', key: 'T', tip: 'Text' },
         { id: 'barcode', icon: 'barcode', key: 'B', tip: 'Barcode' },
         { id: 'qr', icon: 'qr', key: 'Q', tip: 'QR code' },
         { id: 'image', icon: 'image', key: 'I', tip: 'Image / logo' },
-        'sep',
         { id: 'rect', icon: 'rect', key: 'R', tip: 'Rectangle — drag' },
-        { id: 'line', icon: 'line', key: 'L', tip: 'Line — drag, ⇧ to straighten' },
         { id: 'ellipse', icon: 'ellipse', key: 'O', tip: 'Ellipse — drag' },
-        'sep',
+        { id: 'line', icon: 'line', key: 'L', tip: 'Line — drag, ⇧ to straighten' },
+    ];
+    const TOOLS_ROW2 = [
         { id: 'pen', icon: 'pen', key: 'P', tip: 'Pen — freehand' },
         { id: 'eraser', icon: 'eraser', key: 'E', tip: 'Eraser — paints paper white' },
-        'sep',
         { id: 'hand', icon: 'hand', key: 'H', tip: 'Hand — pan (hold Space)' },
         { id: 'zoom', icon: 'zoom', key: 'Z', tip: 'Zoom — click in, ⌥-click out' },
     ];
-    const toolDef = (id) => TOOLS.find((t) => t !== 'sep' && t.id === id);
+    const ALL_TOOLS = [...TOOLS_ROW1, ...TOOLS_ROW2];
+    const toolDef = (id) => ALL_TOOLS.find((t) => t.id === id);
     let spaceDown = false;
 
     function buildToolbar() {
         const tb = $('#toolbar');
-        tb.innerHTML = TOOLS.map((t) => (t === 'sep'
-            ? '<div class="tool-sep"></div>'
-            : `<button class="tool" data-tool="${t.id}" data-tip="${esc(t.tip)} (${t.key})">${icon(t.icon)}<span class="key">${t.key}</span></button>`)).join('')
-            + `<button class="tool mobile-layers-tool mobile-only" data-action="openLayers" title="Layers & Properties">${icon('layers')}<span class="tool-badge" id="dockLayerBadge">0</span></button>`
-            + '<div class="ink-swatch" data-action="toggleInk" title="Ink colour for new objects (X to swap)"><span class="fg"></span><span class="bg"></span></div>';
+        const makeBtn = (t) => `<button class="tool" data-tool="${t.id}" data-tip="${esc(t.tip)} (${t.key})">${icon(t.icon)}<span class="key">${t.key}</span></button>`;
+
+        tb.innerHTML = `
+            <div class="toolbar-row tb-row-1">
+                ${TOOLS_ROW1.map(makeBtn).join('')}
+            </div>
+            <div class="tool-sep desktop-only"></div>
+            <div class="toolbar-row tb-row-2">
+                ${TOOLS_ROW2.map(makeBtn).join('')}
+                <div class="ink-swatch" data-action="toggleInk" title="Ink colour for new objects (X to swap)"><span class="fg"></span><span class="bg"></span></div>
+                <button class="tool mobile-layers-tool mobile-only" data-action="openLayers" title="Layers & Properties">
+                    ${icon('layers')}<span class="tool-badge" id="dockLayerBadge">0</span>
+                </button>
+                <button class="tool mobile-only" data-action="deleteSelected" title="Delete selected object">
+                    ${icon('trash')}
+                </button>
+            </div>
+        `;
         tb.addEventListener('click', (e) => {
             const la = e.target.closest('[data-action="openLayers"]');
             if (la) {
                 openMobileDrawer('layers');
+                return;
+            }
+            const del = e.target.closest('[data-action="deleteSelected"]');
+            if (del) {
+                deleteSel();
                 return;
             }
             const b = e.target.closest('[data-tool]');
@@ -2240,14 +2259,83 @@
         'e7810a71-73ae-499d-8c15-faa9aef0c3f2', // Vendor BLE
     ];
 
+    /* ------------------------------------------- Mobile Native Share (Deli Label / RawBT) */
+    async function doSharePrint() {
+        if (!previewMono) return;
+        try {
+            const blob = await new Promise((resolve) => previewMono.toBlob(resolve, 'image/png'));
+            if (!blob) throw new Error('Could not render label bitmap');
+            const safeName = (state.name || 'label').replace(/[^\w\- ]+/g, '').trim() || 'label';
+            const file = new File([blob], `${safeName}.png`, { type: 'image/png' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: state.name || 'Thermal Label',
+                    text: 'Print thermal sticker via Deli Label or RawBT',
+                    files: [file],
+                });
+                toast('Label Shared', 'Select your Deli Label or RawBT app to print!', 'success');
+            } else if (navigator.share) {
+                await navigator.share({
+                    title: state.name || 'Thermal Label',
+                    url: previewMono.toDataURL('image/png'),
+                });
+                toast('Shared via Sheet', 'Sent to share sheet', 'success');
+            } else {
+                const a = document.createElement('a');
+                a.href = previewMono.toDataURL('image/png');
+                a.download = `${safeName}.png`;
+                a.click();
+                toast('Downloaded', 'Open the downloaded PNG with your Deli Label app to print!', 'info');
+            }
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                toast('Share Error', err.message || 'Share operation failed', 'error');
+            }
+        }
+    }
+
+    /* ------------------------------------------- AirPrint / System Spooler Print */
+    function doSystemPrint() {
+        if (!previewMono) return;
+        let area = document.getElementById('systemPrintArea');
+        if (!area) {
+            area = document.createElement('div');
+            area.id = 'systemPrintArea';
+            document.body.appendChild(area);
+        }
+        const dataUrl = previewMono.toDataURL('image/png');
+        area.innerHTML = `<img src="${dataUrl}" style="width:${state.widthMm}mm; height:${state.heightMm}mm; object-fit:contain;" alt="Label">`;
+        window.print();
+    }
+
+    function showBluetoothGuide() {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const dlg = $('#bluetoothHelpDialog');
+        if (!dlg) return;
+
+        const secIos = $('#btSectionIos');
+        const secAndroid = $('#btSectionAndroid');
+        const secDesk = $('#btSectionDesktop');
+        const title = $('#btHelpTitle');
+
+        if (secIos) secIos.style.display = isIOS ? 'flex' : 'none';
+        if (secAndroid) secAndroid.style.display = (!isIOS && isAndroid) ? 'flex' : 'none';
+        if (secDesk) secDesk.style.display = (!isIOS && !isAndroid) ? 'flex' : 'none';
+
+        if (title) {
+            if (isIOS) title.textContent = 'iOS Bluetooth & Printing Guide';
+            else if (isAndroid) title.textContent = 'Android Bluetooth & Printing Guide';
+            else title.textContent = 'Enable Web Bluetooth in Brave';
+        }
+
+        dlg.showModal();
+    }
+
     async function doBluetoothPrint() {
         if (!navigator.bluetooth) {
-            const dlg = $('#bluetoothHelpDialog');
-            if (dlg) {
-                dlg.showModal();
-            } else {
-                toast('Brave Flag Required', 'Open brave://flags/#enable-web-bluetooth in a new tab, set to Enabled, and restart Brave.', 'error');
-            }
+            showBluetoothGuide();
             return;
         }
         if (!previewMono) return;
@@ -2331,6 +2419,7 @@
         } catch (err) {
             if (err.name !== 'NotFoundError') {
                 toast('Bluetooth error', err.message || 'Connection cancelled', 'error');
+                showBluetoothGuide();
             }
         } finally {
             btn.disabled = false;
@@ -2393,6 +2482,34 @@
         $('#btnBluetoothPrint')?.addEventListener('click', doBluetoothPrint);
         $('#btnUsbPrint')?.addEventListener('click', doUsbPrint);
         $('#btnTrySerialPrint')?.addEventListener('click', doSerialPrint);
+        $('#btnMobileShare')?.addEventListener('click', doSharePrint);
+        $('#btnSystemPrint')?.addEventListener('click', doSystemPrint);
+
+        // Bluetooth help modal actions
+        $('#btnIosShareDeli')?.addEventListener('click', () => {
+            doSharePrint();
+            $('#bluetoothHelpDialog')?.close();
+        });
+        $('#btnIosAirPrint')?.addEventListener('click', () => {
+            doSystemPrint();
+            $('#bluetoothHelpDialog')?.close();
+        });
+        $('#btnIosCopyUrl')?.addEventListener('click', () => {
+            navigator.clipboard?.writeText(window.location.href);
+            toast('URL Copied', 'Paste into Bluefy browser for Web Bluetooth support', 'success');
+        });
+        $('#btnAndroidShare')?.addEventListener('click', () => {
+            doSharePrint();
+            $('#bluetoothHelpDialog')?.close();
+        });
+        $('#btnAndroidCopyUrl')?.addEventListener('click', () => {
+            navigator.clipboard?.writeText(window.location.href);
+            toast('URL Copied', 'Paste into Google Chrome for Android', 'success');
+        });
+        $('#btnAndroidCopyFlag')?.addEventListener('click', () => {
+            navigator.clipboard?.writeText('chrome://flags/#enable-web-bluetooth');
+            toast('Flag Copied', 'Open a new tab, paste, set to Enabled and Relaunch', 'success');
+        });
 
         // Mobile panel drawer toggle & backdrop
         $('#btnTogglePanels')?.addEventListener('click', () => {

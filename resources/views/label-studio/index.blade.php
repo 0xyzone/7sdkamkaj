@@ -15,45 +15,57 @@
 <div id="app">
     {{-- ===== Menu bar ===== --}}
     <header class="menubar">
-        <a class="brand" href="{{ url('/label-templates') }}" title="Back to panel">
-            <i data-icon="back" class="mobile-only"></i>
-            <img src="{{ asset('images/symbol.png') }}" alt="7">
-            <span class="desktop-only">Label Studio</span>
-        </a>
-        <div class="menu-group desktop-only">
-            <button class="mbtn" data-action="new" title="New label (⌥N)"><i data-icon="filePlus"></i><span>New</span></button>
-            <button class="mbtn" data-action="saveAs" title="Save as new template"><span>Save As…</span></button>
-        </div>
-        <div class="mselect">
-            <i data-icon="folder"></i>
-            <select id="templatePicker" title="Open template"></select>
-        </div>
-        <div class="menu-sep desktop-only"></div>
-        <div class="menu-group undo-redo-group">
-            <button class="mbtn icon" data-action="undo" id="btnUndo" title="Undo (⌘Z)"><i data-icon="undo"></i></button>
-            <button class="mbtn icon" data-action="redo" id="btnRedo" title="Redo (⇧⌘Z)"><i data-icon="redo"></i></button>
-        </div>
-        <div class="doc-title desktop-only">
-            <input id="docName" type="text" spellcheck="false" title="Template name">
-            <span id="dirtyDot" class="dirty-dot" title="Unsaved changes"></span>
-        </div>
-        <div class="menu-right">
-            <button class="mbtn desktop-only" data-action="openQueue" id="btnQueue" title="View print queue & cancel jobs">
-                <i data-icon="queue"></i><span>Queue</span><span id="queueBadge" class="q-badge" style="display:none">0</span>
-            </button>
-            <div class="printer-pill desktop-only" id="printerPill" title="Printer status">
-                <span class="dot"></span><span class="txt">Checking…</span>
+        <div class="menubar-row menubar-top-row">
+            <a class="brand" href="{{ url('/label-templates') }}" title="Back to panel">
+                <i data-icon="back" class="mobile-only"></i>
+                <img src="{{ asset('images/symbol.png') }}" alt="7">
+                <span class="desktop-only">Label Studio</span>
+            </a>
+            <div class="menu-group desktop-only">
+                <button class="mbtn" data-action="new" title="New label (⌥N)"><i data-icon="filePlus"></i><span>New</span></button>
+                <button class="mbtn" data-action="saveAs" title="Save as new template"><span>Save As…</span></button>
             </div>
-            <button class="mbtn icon mobile-only" data-action="openLayers" id="btnMobileTopLayers" title="Layers">
-                <i data-icon="layers"></i><span class="top-badge" id="topLayerBadge">0</span>
-            </button>
-            <button class="mbtn" data-action="save" id="btnTopSave" title="Save (⌘S)">
-                <i data-icon="save"></i><span class="desktop-only">Save</span><span id="mobileDirtyDot" class="m-dirty-dot" style="display:none;"></span>
-            </button>
-            <button class="mbtn primary" data-action="preview" id="btnTopPrint" title="Print (⌘P)">
-                <i data-icon="print"></i><span>Print</span>
-            </button>
-            <a class="mbtn desktop-only" href="{{ url('/label-templates') }}" title="Back to panel"><i data-icon="back"></i><span>Panel</span></a>
+            <div class="mselect">
+                <i data-icon="folder"></i>
+                <select id="templatePicker" title="Open template"></select>
+            </div>
+            <div class="menu-sep desktop-only"></div>
+            <a class="mbtn icon mobile-only" href="{{ url('/label-templates') }}" title="Back to panel">
+                <i data-icon="back"></i>
+            </a>
+        </div>
+        <div class="menubar-row menubar-actions-row">
+            <div class="menu-group undo-redo-group">
+                <button class="mbtn icon" data-action="undo" id="btnUndo" title="Undo (⌘Z)"><i data-icon="undo"></i></button>
+                <button class="mbtn icon" data-action="redo" id="btnRedo" title="Redo (⇧⌘Z)"><i data-icon="redo"></i></button>
+            </div>
+            <div class="menu-group mobile-zoom-group mobile-only">
+                <button class="mbtn icon" data-action="zoomOut" title="Zoom out">−</button>
+                <button class="mbtn" data-action="zoomFit" title="Fit to screen">Fit</button>
+                <button class="mbtn icon" data-action="zoomIn" title="Zoom in">+</button>
+            </div>
+            <div class="doc-title desktop-only">
+                <input id="docName" type="text" spellcheck="false" title="Template name">
+                <span id="dirtyDot" class="dirty-dot" title="Unsaved changes"></span>
+            </div>
+            <div class="menu-right">
+                <button class="mbtn desktop-only" data-action="openQueue" id="btnQueue" title="View print queue & cancel jobs">
+                    <i data-icon="queue"></i><span>Queue</span><span id="queueBadge" class="q-badge" style="display:none">0</span>
+                </button>
+                <div class="printer-pill desktop-only" id="printerPill" title="Printer status">
+                    <span class="dot"></span><span class="txt">Checking…</span>
+                </div>
+                <button class="mbtn mobile-layers-btn" data-action="openLayers" id="btnMobileTopLayers" title="Layers & Properties">
+                    <i data-icon="layers"></i><span>Layers</span><span class="top-badge" id="topLayerBadge">0</span>
+                </button>
+                <button class="mbtn" data-action="save" id="btnTopSave" title="Save (⌘S)">
+                    <i data-icon="save"></i><span>Save</span><span id="mobileDirtyDot" class="m-dirty-dot" style="display:none;"></span>
+                </button>
+                <button class="mbtn primary" data-action="preview" id="btnTopPrint" title="Print (⌘P)">
+                    <i data-icon="print"></i><span>Print</span>
+                </button>
+                <a class="mbtn desktop-only" href="{{ url('/label-templates') }}" title="Back to panel"><i data-icon="back"></i><span>Panel</span></a>
+            </div>
         </div>
     </header>
 
@@ -137,19 +149,112 @@
     </footer>
 </div>
 
-{{-- ===== Bluetooth Help dialog for Brave ===== --}}
-<dialog id="bluetoothHelpDialog" class="dialog" style="width: min(520px, 94vw);">
+{{-- ===== Bluetooth Help dialog for Mobile & Brave ===== --}}
+<dialog id="bluetoothHelpDialog" class="dialog" style="width: min(540px, 95vw);">
     <div class="dialog-inner">
         <header class="dialog-head" style="border-bottom: 1px solid var(--border);">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; background:#2563eb; color:#fff;">
                     <i data-icon="bluetooth"></i>
                 </span>
-                <h3 style="margin: 0; font-size: 15px; font-weight: 700;">Enable Web Bluetooth in Brave</h3>
+                <h3 style="margin: 0; font-size: 15px; font-weight: 700;" id="btHelpTitle">Bluetooth Printing Guide</h3>
             </div>
             <button type="button" class="x" onclick="document.getElementById('bluetoothHelpDialog').close()" title="Close">×</button>
         </header>
-        <div class="dialog-body" style="display:flex; flex-direction:column; gap:14px; padding:20px; font-size:12.5px; line-height:1.6;">
+
+        {{-- iOS (iPhone / iPad) Guidance --}}
+        <div id="btSectionIos" class="dialog-body" style="display:none; flex-direction:column; gap:14px; padding:18px; font-size:12.5px; line-height:1.6;">
+            <div style="background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.3); border-radius:8px; padding:12px; color:#fca5a5;">
+                <strong style="color:#fff; display:block; margin-bottom:4px;">Apple iOS Browser Restriction:</strong>
+                Apple strictly blocks the Web Bluetooth API across all browsers on iOS (Safari, Brave, Chrome). Mobile browsers on iPhone/iPad cannot directly scan BLE peripherals.
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <span style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); letter-spacing:0.04em;">Fastest Mobile Printing Methods:</span>
+
+                {{-- Option 1: Native Share to Deli App --}}
+                <div style="background:var(--field); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="font-weight:600; color:#fff;">1. Share directly to Deli App (Recommended)</span>
+                        <button type="button" class="btn sm" id="btnIosShareDeli" style="background:#059669; color:#fff; border-color:#047857; font-size:11px;">
+                            Share to Deli App
+                        </button>
+                    </div>
+                    <span style="font-size:11.5px; color:#94a3b8;">Opens the native iOS share sheet with your 1-bit thermal label. Tap <strong>"Deli Label"</strong> to print via Bluetooth with 1 tap!</span>
+                </div>
+
+                {{-- Option 2: AirPrint --}}
+                <div style="background:var(--field); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="font-weight:600; color:#fff;">2. AirPrint / System Print</span>
+                        <button type="button" class="btn sm" id="btnIosAirPrint" style="background:#475569; color:#fff; border-color:#334155; font-size:11px;">
+                            AirPrint
+                        </button>
+                    </div>
+                    <span style="font-size:11.5px; color:#94a3b8;">Prints directly to any wireless AirPrint-compatible thermal printer on your local Wi-Fi.</span>
+                </div>
+
+                {{-- Option 3: Bluefy Web BLE Browser --}}
+                <div style="background:var(--field); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="font-weight:600; color:#fff;">3. Bluefy Web BLE Browser</span>
+                        <button type="button" class="btn sm" id="btnIosCopyUrl" style="font-size:11px;">
+                            Copy Page URL
+                        </button>
+                    </div>
+                    <span style="font-size:11.5px; color:#94a3b8;">For direct in-browser Web Bluetooth on iOS, download the free <strong>Bluefy</strong> app from the App Store and paste this page URL.</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- Android Guidance --}}
+        <div id="btSectionAndroid" class="dialog-body" style="display:none; flex-direction:column; gap:14px; padding:18px; font-size:12.5px; line-height:1.6;">
+            <div style="background:rgba(234, 179, 8, 0.12); border:1px solid rgba(234, 179, 8, 0.3); border-radius:8px; padding:12px; color:#fde047;">
+                <strong style="color:#fff; display:block; margin-bottom:4px;">Android Bluetooth Notice:</strong>
+                Brave on Android blocks Web Bluetooth by default for privacy, or your printer is using Bluetooth Classic SPP.
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <span style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); letter-spacing:0.04em;">Choose Your Printing Method:</span>
+
+                {{-- Option 1: Native Share to Deli or RawBT --}}
+                <div style="background:var(--field); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="font-weight:600; color:#fff;">1. Share to Deli App or RawBT</span>
+                        <button type="button" class="btn sm" id="btnAndroidShare" style="background:#059669; color:#fff; border-color:#047857; font-size:11px;">
+                            Share to App
+                        </button>
+                    </div>
+                    <span style="font-size:11.5px; color:#94a3b8;">Tap to open the Android Share Sheet. Pick <strong>Deli Label</strong> or <strong>RawBT</strong> to send to your paired Bluetooth printer!</span>
+                </div>
+
+                {{-- Option 2: Open in Chrome --}}
+                <div style="background:var(--field); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="font-weight:600; color:#fff;">2. Open in Google Chrome</span>
+                        <button type="button" class="btn sm" id="btnAndroidCopyUrl" style="background:#2563eb; color:#fff; border-color:#1d4ed8; font-size:11px;">
+                            Copy URL for Chrome
+                        </button>
+                    </div>
+                    <span style="font-size:11.5px; color:#94a3b8;">Google Chrome on Android supports Web Bluetooth out of the box with zero flags needed!</span>
+                </div>
+
+                {{-- Option 3: Enable Brave Flag --}}
+                <div style="background:var(--field); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="font-weight:600; color:#fff;">3. Enable Flag in Brave</span>
+                        <button type="button" class="btn sm" id="btnAndroidCopyFlag" style="font-size:11px;">
+                            Copy Flag URL
+                        </button>
+                    </div>
+                    <input type="text" id="androidFlagUrlInput" value="chrome://flags/#enable-web-bluetooth" readonly style="font-family:'Roboto Mono',monospace; font-size:11.5px; color:#93c5fd; background:#0b0f19; border:1px solid #1e293b; border-radius:6px; padding:6px 8px; width:100%; cursor:pointer;" onclick="this.select()">
+                    <span style="font-size:11px; color:#94a3b8;">Paste in a new tab, change to <strong>Enabled</strong>, and tap Relaunch.</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- Desktop (Mac / Windows) Guidance --}}
+        <div id="btSectionDesktop" class="dialog-body" style="display:flex; flex-direction:column; gap:14px; padding:20px; font-size:12.5px; line-height:1.6;">
             <p style="margin:0; color:#e2e8f0;">
                 Brave blocks website Bluetooth access by default for privacy. To print wirelessly to your <strong>Deli E886BW</strong>, enable the flag once:
             </p>
@@ -182,10 +287,11 @@
                 </button>
             </div>
         </div>
+
         <footer class="dialog-foot" style="justify-content: flex-end; gap: 8px;">
             <button type="button" class="btn" onclick="document.getElementById('bluetoothHelpDialog').close()">Close</button>
             <button type="button" class="btn primary" id="btnCopiedAndClose" style="background:#2563eb; border-color:#1d4ed8;">
-                Copy URL &amp; Done
+                Done
             </button>
         </footer>
     </div>
@@ -254,6 +360,12 @@
         </div>
         <footer class="dialog-foot">
             <button value="cancel" class="btn">Cancel</button>
+            <button type="button" class="btn" id="btnMobileShare" style="background:#059669; color:#fff; border-color:#047857;" title="Share label directly to Deli Label / RawBT app on iOS or Android">
+                <i data-icon="share"></i> Share to Deli App
+            </button>
+            <button type="button" class="btn" id="btnSystemPrint" style="background:#475569; color:#fff; border-color:#334155;" title="Print via AirPrint (iOS) or Android System Print Spooler">
+                <i data-icon="print"></i> AirPrint / System
+            </button>
             <button type="button" class="btn" id="btnUsbPrint" style="background:#059669; color:#fff; border-color:#047857;" title="Direct client USB print via WebUSB in Brave/Chrome/Edge">
                 <i data-icon="usb"></i> Direct USB Print
             </button>
@@ -264,6 +376,8 @@
         </footer>
     </form>
 </dialog>
+
+<div id="systemPrintArea"></div>
 
 <input type="file" id="imageInput" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" hidden>
 <div id="toasts" class="toasts"></div>

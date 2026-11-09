@@ -77,6 +77,7 @@ i[data-icon] svg { width: 100%; height: 100%; }
     background: var(--chrome);
     border-bottom: 1px solid #000;
 }
+.menubar-row { display: contents; }
 .brand { display: flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; font-weight: 700; letter-spacing: .02em; padding-right: 8px; }
 .brand img { width: 22px; height: 22px; object-fit: contain; }
 .menu-group { display: flex; align-items: center; gap: 2px; }
@@ -171,6 +172,7 @@ input, textarea { user-select: text; }
     padding: 8px 0; gap: 2px;
     overflow-y: auto;
 }
+.toolbar-row { display: contents; }
 .toolbar::-webkit-scrollbar { width: 0; }
 .tool {
     position: relative;
@@ -417,16 +419,31 @@ input, textarea { user-select: text; }
         flex-direction: column;
     }
 
-    /* Top Menubar: Clean flex layout without horizontal overflow */
+    /* Top Menubar: 2 Clean Rows on Mobile to prevent squashing & clipping */
     .menubar {
-        height: 48px !important;
-        padding: 0 8px !important;
+        height: auto !important;
+        min-height: 84px !important;
+        padding: 6px 8px !important;
         display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        background: #141518 !important;
+        border-bottom: 1px solid var(--border) !important;
         overflow: visible !important;
         flex-shrink: 0 !important;
-        gap: 6px !important;
+    }
+    .menubar-row {
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+    .menubar-top-row {
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+    .menubar-actions-row {
+        justify-content: space-between !important;
+        gap: 4px !important;
     }
     .brand {
         font-size: 13px !important;
@@ -444,30 +461,45 @@ input, textarea { user-select: text; }
         color: #94a3b8;
     }
     .mselect {
-        max-width: 125px !important;
-        flex: 0 1 125px !important;
+        flex: 1 1 auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
     }
     .mselect select {
-        font-size: 11px !important;
-        padding: 0 10px 0 20px !important;
-        height: 30px !important;
+        width: 100% !important;
+        max-width: none !important;
+        font-size: 11.5px !important;
+        padding: 0 10px 0 24px !important;
+        height: 32px !important;
         text-overflow: ellipsis !important;
         white-space: nowrap !important;
         overflow: hidden !important;
-        max-width: 125px !important;
-        background-position: 5px center !important;
+        background-position: 6px center !important;
     }
     .undo-redo-group {
         display: flex !important;
         gap: 2px !important;
         flex-shrink: 0 !important;
     }
+    .mobile-zoom-group {
+        display: flex !important;
+        align-items: center !important;
+        gap: 2px !important;
+        flex-shrink: 0 !important;
+    }
     .menu-right {
         display: flex !important;
         align-items: center !important;
-        gap: 5px !important;
+        gap: 4px !important;
         margin-left: auto !important;
         flex-shrink: 0 !important;
+    }
+    .mobile-layers-btn {
+        position: relative !important;
+        background: #1c2333 !important;
+        border-color: #2563eb !important;
+        color: #93c5fd !important;
+        font-weight: 600 !important;
     }
     .top-badge {
         background: #dc2626;
@@ -492,13 +524,13 @@ input, textarea { user-select: text; }
         margin-left: 3px;
     }
     .mbtn {
-        height: 30px !important;
+        height: 32px !important;
         padding: 0 8px !important;
         font-size: 11.5px !important;
         border-radius: 6px !important;
     }
     .mbtn.icon {
-        width: 30px !important;
+        width: 32px !important;
         padding: 0 !important;
         justify-content: center !important;
     }
@@ -506,7 +538,7 @@ input, textarea { user-select: text; }
         background: #dc2626 !important;
         color: #fff !important;
         border: 1px solid #b91c1c !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
         padding: 0 10px !important;
     }
     .mbtn.primary span {
@@ -515,7 +547,7 @@ input, textarea { user-select: text; }
 
     /* Options Bar */
     .optionsbar {
-        height: 38px;
+        height: 36px;
         padding: 0 8px;
         overflow-x: auto;
         white-space: nowrap;
@@ -531,7 +563,7 @@ input, textarea { user-select: text; }
         flex: 1 1 auto !important;
         position: relative !important;
         overflow: hidden !important;
-        margin-bottom: 54px !important; /* Space for bottom dock */
+        margin-bottom: 92px !important; /* Space for 2-row bottom toolbar dock */
     }
 
     /* Workspace & Stage: Hide rulers to maximize canvas space on small screens */
@@ -548,7 +580,7 @@ input, textarea { user-select: text; }
         justify-content: center !important;
         min-width: 100% !important;
         min-height: 100% !important;
-        padding: 12px !important;
+        padding: 8px !important;
     }
     .ruler, .ruler-corner {
         display: none !important;
@@ -558,51 +590,66 @@ input, textarea { user-select: text; }
         box-shadow: 0 6px 24px rgba(0,0,0,0.65) !important;
     }
 
-    /* Bottom Toolbar Dock */
+    /* 2-Row Bottom Toolbar Dock */
     .toolbar {
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
         width: 100vw !important;
-        height: 54px !important;
-        flex-direction: row !important;
+        height: auto !important;
+        min-height: 88px !important;
+        max-height: 94px !important;
+        display: flex !important;
+        flex-direction: column !important;
         background: #121316 !important;
         border-top: 1px solid var(--border) !important;
         border-right: none !important;
         z-index: 60 !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        padding: 0 8px !important;
-        gap: 5px !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-        scrollbar-width: none !important;
+        padding: 4px 6px !important;
+        gap: 4px !important;
         box-shadow: 0 -4px 20px rgba(0,0,0,0.65) !important;
+        overflow: hidden !important;
     }
-    .toolbar::-webkit-scrollbar { display: none; }
-    .tool {
-        width: 40px !important;
-        height: 40px !important;
-        flex: 0 0 40px !important;
-        border-radius: 8px !important;
+    .toolbar-row {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        width: 100% !important;
+        gap: 3px !important;
+    }
+    .toolbar .tool {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        max-width: 44px !important;
+        height: 38px !important;
+        border-radius: 7px !important;
         margin: 0 !important;
         background: #18191d !important;
         border: 1px solid var(--border) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
     }
-    .tool .key { display: none !important; }
-    .tool.active {
+    .toolbar .tool .key { display: none !important; }
+    .toolbar .tool i[data-icon] {
+        width: 18px !important;
+        height: 18px !important;
+    }
+    .toolbar .tool.active {
         border-color: var(--accent) !important;
         background: rgba(220, 38, 38, 0.25) !important;
         color: #fff !important;
     }
-    .mobile-layers-tool {
+    .toolbar .mobile-layers-tool {
         position: relative !important;
         background: #1c2333 !important;
         border-color: #2563eb !important;
         color: #93c5fd !important;
     }
-    .mobile-layers-tool .tool-badge {
+    .toolbar .mobile-layers-tool .tool-badge {
         position: absolute;
         top: 2px;
         right: 2px;
@@ -617,45 +664,19 @@ input, textarea { user-select: text; }
         border-radius: 7px;
         padding: 0 3px;
     }
-    .tool-sep {
-        width: 1px !important;
-        height: 24px !important;
-        margin: 0 2px !important;
-        background: var(--border) !important;
-        flex: 0 0 1px !important;
-    }
-    .ink-swatch {
-        margin: 0 0 0 3px !important;
-        flex: 0 0 28px !important;
-        width: 28px !important;
-        height: 28px !important;
+    .toolbar .tool-sep { display: none !important; }
+    .toolbar .ink-swatch {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        max-width: 44px !important;
+        height: 38px !important;
+        margin: 0 !important;
+        border-radius: 7px !important;
     }
 
-    /* Status Bar: Clean zoom pill on mobile */
+    /* Status Bar: Integrated into top bar on mobile */
     .statusbar {
-        position: fixed !important;
-        bottom: 54px !important;
-        left: 0 !important;
-        right: 0 !important;
-        height: 24px !important;
-        padding: 0 8px !important;
-        background: rgba(18, 19, 22, 0.94) !important;
-        backdrop-filter: blur(8px) !important;
-        border-top: 1px solid var(--border) !important;
-        font-size: 10.5px !important;
-        z-index: 55 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-    }
-    .statusbar .sb-item,
-    .statusbar .sb-spacer {
         display: none !important;
-    }
-    .zoom-ctl {
-        display: flex !important;
-        align-items: center !important;
-        gap: 2px !important;
     }
 
     /* Side Panels / Mobile Drawer */
@@ -663,8 +684,8 @@ input, textarea { user-select: text; }
         position: fixed !important;
         top: 0 !important;
         right: 0 !important;
-        bottom: 54px !important;
-        width: min(350px, 92vw) !important;
+        bottom: 92px !important;
+        width: min(360px, 94vw) !important;
         z-index: 70 !important;
         background: #18191d !important;
         box-shadow: -10px 0 35px rgba(0,0,0,0.7) !important;
@@ -810,4 +831,35 @@ input, textarea { user-select: text; }
         padding: 14px !important;
     }
 }
+
+/* Print styles for thermal stickers via AirPrint / System Print */
+@media print {
+    body > *:not(#systemPrintArea) {
+        display: none !important;
+    }
+    #systemPrintArea {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: fixed !important;
+        inset: 0 !important;
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        z-index: 99999 !important;
+    }
+    #systemPrintArea img {
+        display: block !important;
+        image-rendering: pixelated !important;
+        max-width: 100% !important;
+    }
+    @page {
+        margin: 0;
+        size: auto;
+    }
+}
+#systemPrintArea {
+    display: none;
+}
+
 

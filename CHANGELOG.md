@@ -4,6 +4,20 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] - 2026-11-09
+
+### Added
+- **2-Line Mobile Top Menubar**: Redesigned the top navigation bar on mobile screens into two distinct semantic rows. Row 1 houses the Brand/back button, full-width template dropdown selector (`<select>`), and quick Panel link; Row 2 houses Undo/Redo, Zoom controls (`-`, `Fit`, `+`), Layers drawer toggle with live badge count, Save with dirty dot indicator, and a prominent Print button. Eliminates all text truncation, squeezed dropdowns, and button clipping.
+- **2-Line Mobile Bottom Toolbar Dock**: Restructured the mobile bottom dock into two full-width rows. Row 1 exposes all creation & insertion tools (`Select`, `Text`, `Barcode`, `QR`, `Image`, `Rectangle`, `Ellipse`, `Line`); Row 2 exposes drawing, navigation, and utilities (`Pen`, `Eraser`, `Hand`, `Zoom`, `Ink Swatch`, `Layers & Props` drawer button, and 1-tap `Delete / Trash`). All tools are 100% visible simultaneously without horizontal scroll.
+- **1-Tap Share to Deli Label / RawBT App**: Added native Web Share API (`navigator.share`) support with the 1-bit thermal bitmap PNG attached. On iOS and Android (including Brave, Safari, Chrome), tapping "Share to Deli App" instantly opens the native OS share sheet to send the label directly to installed printer apps (Deli Label, RawBT) without browser Bluetooth roadblocks.
+- **AirPrint & Android System Spooler Printing**: Added 1-tap "AirPrint / System" button formatted with zero-margin `@media print` thermal sticker styles, enabling wireless printing through native iOS AirPrint and Android Print Spooler.
+- **Mobile OS-Aware Bluetooth Guidance**: The Bluetooth help dialog now dynamically detects the operating system:
+  - **iOS**: Explains Apple's WebKit policy blocking Web Bluetooth across all iOS browsers, offering 1-tap "Share to Deli App", "AirPrint", and Bluefy Web BLE browser helper.
+  - **Android**: Explains Brave's default privacy flag, offering 1-tap "Share to Deli / RawBT", "Open in Google Chrome", and Brave flag copy.
+- **Resource Page Quick Print Modal Update**: Added 1-tap "Share to Deli App" and "AirPrint / System Print" buttons directly inside the `/label-templates` table quick-print slide-over.
+
+---
+
 ## [1.14.0] - 2026-11-09
 
 ### Added

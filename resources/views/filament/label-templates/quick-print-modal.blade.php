@@ -148,6 +148,31 @@
 
             {{-- Action Buttons --}}
             <div class="flex flex-col gap-2 pt-1">
+                {{-- Share Directly to Deli App / RawBT (iOS / Android) --}}
+                <button
+                    type="button"
+                    @click="sharePrint()"
+                    class="w-full py-2.5 px-4 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs flex items-center justify-center gap-2 transition shadow-md cursor-pointer"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                    <span>Share to Deli App (Mobile 1-Tap)</span>
+                </button>
+
+                {{-- AirPrint / System Print Spooler --}}
+                <button
+                    type="button"
+                    @click="systemPrint()"
+                    class="w-full py-2 px-4 rounded-lg bg-slate-700 hover:bg-slate-600 text-gray-200 font-medium text-xs flex items-center justify-center gap-2 transition shadow-md cursor-pointer border border-slate-600"
+                >
+                    <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    <span>AirPrint / System Print</span>
+                </button>
+
                 {{-- Direct USB Print (WebUSB) --}}
                 <button
                     type="button"
@@ -495,21 +520,93 @@ function quickPrintComponent_{{ $template->id }}() {
             }
         },
 
+        async sharePrint() {
+            if (!this.monoCanvas) return;
+            try {
+                const blob = await new Promise((resolve) => this.monoCanvas.toBlob(resolve, 'image/png'));
+                if (!blob) throw new Error('Could not render label bitmap');
+                const safeName = (this.name || 'label').replace(/[^\w\- ]+/g, '').trim() || 'label';
+                const file = new File([blob], `${safeName}.png`, { type: 'image/png' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: this.name,
+                        text: 'Print thermal sticker via Deli Label or RawBT',
+                        files: [file],
+                    });
+                } else if (navigator.share) {
+                    await navigator.share({
+                        title: this.name,
+                        url: this.monoCanvas.toDataURL('image/png'),
+                    });
+                } else {
+                    const a = document.createElement('a');
+                    a.href = this.monoCanvas.toDataURL('image/png');
+                    a.download = `${safeName}.png`;
+                    a.click();
+                    alert('Label image downloaded! Open with your Deli Label app to print.');
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    alert('Share error: ' + (err.message || 'Operation failed'));
+                }
+            }
+        },
+
+        systemPrint() {
+            if (!this.monoCanvas) return;
+            const dataUrl = this.monoCanvas.toDataURL('image/png');
+            const wMm = {{ $template->width_mm }};
+            const hMm = {{ $template->height_mm }};
+            const printWin = window.open('', '_blank', 'width=600,height=600');
+            if (printWin) {
+                printWin.document.write(`
+                    <html>
+                    <head>
+                        <title>Print Label</title>
+                        <style>
+                            @page { margin: 0; size: ${wMm}mm ${hMm}mm; }
+                            body { margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: #fff; }
+                            img { width: ${wMm}mm; height: ${hMm}mm; image-rendering: pixelated; object-fit: contain; }
+                        </style>
+                    </head>
+                    <body onload="window.focus(); window.print(); window.close();">
+                        <img src="${dataUrl}" alt="Label">
+                    </body>
+                    </html>
+                `);
+                printWin.document.close();
+            } else {
+                window.print();
+            }
+        },
+
         async printBluetooth() {
-            const THERMAL_BLE_SERVICES = [
-                '0000ffe0-0000-1000-8000-00805f9b34fb', // Deli & HM-10 UART Service
-                '0000ff00-0000-1000-8000-00805f9b34fb', // Deli secondary UART
-                '49535343-fe7d-4ae5-8fa9-9fafd205e455', // ISSC transparent UART (Deli/Xprinter)
-                '6e400001-b5a3-f393-e0a9-e50e24dcca9e', // Nordic Semiconductor NUS
-                '0000fee7-0000-1000-8000-00805f9b34fb', // Tencent WeChat IoT BLE thermal
-                '0000ae00-0000-1000-8000-00805f9b34fb', // JL BLE UART
-                '0000af00-0000-1000-8000-00805f9b34fb', // JL alternate
-                '000018f0-0000-1000-8000-00805f9b34fb', // Standard Print Service
-                '0000fff0-0000-1000-8000-00805f9b34fb', // General POS/Label BLE
-                'e7810a71-73ae-499d-8c15-faa9aef0c3f2', // Vendor BLE
-            ];
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const isAndroid = /Android/i.test(navigator.userAgent);
 
             if (!navigator.bluetooth) {
+                if (isIOS) {
+                    const choice = confirm('Apple iOS restricts Web Bluetooth in all mobile browsers (Brave, Chrome, Safari).\n\nTap OK to Share directly to the Deli Label app with 1 tap (Recommended!), or Cancel to use AirPrint.');
+                    if (choice) {
+                        await this.sharePrint();
+                    } else {
+                        this.systemPrint();
+                    }
+                    return;
+                }
+
+                if (isAndroid) {
+                    const choice = confirm('Web Bluetooth is blocked by Brave privacy settings on Android.\n\nTap OK to Share directly to the Deli Label / RawBT app (Fastest!), or Cancel to copy the Brave flag URL.');
+                    if (choice) {
+                        await this.sharePrint();
+                    } else {
+                        navigator.clipboard?.writeText('chrome://flags/#enable-web-bluetooth');
+                        alert('Copied "chrome://flags/#enable-web-bluetooth" to clipboard! Paste into a new tab, set to Enabled, and Relaunch Brave.');
+                    }
+                    return;
+                }
+
                 const choice = confirm('Web Bluetooth is blocked by Brave default privacy settings.\n\nTo enable it:\n1. Open brave://flags/#enable-web-bluetooth in a new tab\n2. Set to Enabled & click Relaunch.\n\nClick OK to try paired Bluetooth Serial Port instead (no flags needed!), or Cancel to copy the flag URL.');
                 if (choice) {
                     await this.printSerial();
@@ -657,3 +754,4 @@ function quickPrintComponent_{{ $template->id }}() {
     };
 }
 </script>
+

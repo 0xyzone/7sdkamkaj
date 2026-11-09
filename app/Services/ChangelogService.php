@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.14.0';
+    public const CURRENT_VERSION = '1.15.0';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,25 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.15.0',
+                'date' => '2026-11-09',
+                'title' => 'Mobile 2-Line Studio UI Overhaul & iOS/Android 1-Tap Wireless Printing',
+                'type' => 'minor',
+                'badge' => 'Feature',
+                'badge_color' => 'primary',
+                'highlights' => 'Complete mobile responsiveness optimization for Label Studio featuring a clean 2-line top navigation header and a 2-line bottom toolbar dock ensuring all tools and menus are 100% visible and accessible without horizontal scroll. Added 1-tap "Share to Deli App" via native Web Share API and AirPrint/System Spooler support to enable effortless wireless printing from Brave on iOS and Android.',
+                'changes' => [
+                    'added' => [
+                        '2-line mobile top menubar: Row 1 displays Brand, full-width template dropdown selector and Panel link; Row 2 houses Undo/Redo, Zoom (-/Fit/+), Layers drawer button with live badge, Save with dirty dot, and prominent Print button.',
+                        '2-line mobile bottom toolbar dock: Row 1 exposes all creation & insertion tools (Select, Text, Barcode, QR, Image, Rectangle, Ellipse, Line); Row 2 exposes drawing, navigation, and utilities (Pen, Eraser, Hand, Zoom, Ink Swatch, Layers drawer, and 1-tap Delete).',
+                        '1-tap Share to Deli App: instantly exports 1-bit thermal label PNG via navigator.share file sheet directly to Deli Label or RawBT on iOS and Android.',
+                        'AirPrint / System Print: zero-margin thermal sticker print preview triggered directly via native browser print spooler.',
+                        'Mobile OS-aware Bluetooth guide: dedicated guidance for iOS (Apple WebKit policy & 1-tap alternatives) and Android (Brave flag toggle & Chrome link).',
+                        'Filament resource page quick-print modal: updated with 1-tap Share to Deli App and AirPrint buttons.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.14.0',
                 'date' => '2026-11-09',
