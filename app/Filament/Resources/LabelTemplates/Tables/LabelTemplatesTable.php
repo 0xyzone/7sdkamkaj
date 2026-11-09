@@ -71,9 +71,9 @@ class LabelTemplatesTable
                     ->color('primary')
                     ->url(fn (LabelTemplate $record) => url("/label-studio/{$record->id}")),
 
-                EditAction::make()
-                    ->label('Edit')
-                    ->slideOver(),
+                // EditAction::make()
+                //     ->label('Edit')
+                //     ->slideOver(),
 
                 DeleteAction::make(),
             ])

@@ -40,6 +40,28 @@ class ChangelogService
                 ],
             ],
             [
+                'version' => '1.15.3',
+                'date' => '2026-11-09',
+                'title' => 'Mobile Card Layout for Label Templates & CanvasTextBaseline Fix',
+                'type' => 'patch',
+                'badge' => 'Update',
+                'badge_color' => 'primary',
+                'highlights' => 'Optimized the Label Templates resource list with a native card layout on mobile screens via stackedOnMobile() eliminating horizontal scrolling for Print and Edit actions. Fixed Fabric.js CanvasTextBaseline invalid enum warning and added script cache-busting.',
+                'changes' => [
+                    'added' => [
+                        'Mobile card UI for Label Templates: stackedOnMobile() converts table rows into styled mobile cards, placing Print and Studio actions right at the bottom of the card.',
+                        '1-tap Card Action: tapping anywhere on a template card triggers the Quick Print slide-over dialog.',
+                        'Added slide-over Edit and Delete actions directly on the table.',
+                        'Enhanced theme.css to apply native card styles to all stacked table rows.',
+                    ],
+                    'fixed' => [
+                        'Fixed CanvasTextBaseline invalid enum warning: replaced non-standard "alphabetical" with HTML5 Canvas standard "alphabetic" in fabric.min.js.',
+                        'Added defensive runtime prototype patch on fabric.Text.prototype._setTextStyles in both quick-print.js and label-studio.js.',
+                        'Added filemtime cache-busting query params to all script includes in quick-print-scripts and label-studio views.',
+                    ],
+                ],
+            ],
+            [
                 'version' => '1.15.2',
                 'date' => '2026-11-09',
                 'title' => 'Quick Print Slide-Over Alpine ReferenceError & Pre-Load Engine Fix',
