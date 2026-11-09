@@ -42,3 +42,4 @@ class LabelTemplatePolicy
         return $authUser->can('DeleteAny:LabelTemplate') || $authUser->hasRole('super_admin');
     }
 }
+

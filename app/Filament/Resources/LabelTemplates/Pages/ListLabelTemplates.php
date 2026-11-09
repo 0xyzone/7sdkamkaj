@@ -19,3 +19,4 @@ class ListLabelTemplates extends ListRecords
         ];
     }
 }
+

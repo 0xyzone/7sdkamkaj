@@ -42,3 +42,4 @@ class PrinterPolicy
         return $authUser->can('DeleteAny:Printer') || $authUser->hasRole('super_admin');
     }
 }
+
