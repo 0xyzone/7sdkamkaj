@@ -4,6 +4,22 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.3] - 2026-11-09
+
+### Added
+- **Label Templates Mobile Native Card Layout**: Transformed the `/label-templates` resource list on mobile devices into a native responsive card layout via `->stackedOnMobile()`. Mobile users no longer need to scroll horizontally across columns to access "Print" and "Studio" actions.
+- **Instant Card Tap-to-Print**: Added `->recordAction('quick_print')` so tapping anywhere on a template card on mobile instantly triggers the Quick Print slide-over modal.
+- **Enhanced Template Management Actions**: Added slide-over `EditAction` and `DeleteAction` directly onto the template table alongside "Print" and "Studio", styled with a dedicated top-bordered action dock at the bottom of each mobile card.
+- **Responsive Table Card Theme Styling**: Updated `theme.css` to target `.fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row` with rounded card borders, elevation shadow, dark mode slate card backgrounds, and wrapped action button flex layouts.
+
+### Fixed
+- **CanvasTextBaseline Invalid Enum Warning**: Fixed the recurring browser DevTools console warning `The provided value 'alphabetical' is not a valid enum value of type CanvasTextBaseline.` spammed on every text element measurement and render.
+- **Fabric.js Engine Correction**: Replaced invalid non-standard value `alphabetical` with official HTML5 Canvas standard `alphabetic` inside `public/vendor/label-studio/fabric.min.js`.
+- **Defensive Fabric Prototype Override**: Added an automatic runtime prototype patch on `fabric.Text.prototype._setTextStyles` in both `quick-print.js` and `label-studio.js` ensuring `ctx.textBaseline = 'alphabetic'` is always enforced even across cached bundles.
+- **Cache Busting**: Added `filemtime` versioning queries to `fabric.min.js`, `JsBarcode`, `qrcode`, and `quick-print.js` script tags across Filament admin panel hooks and Label Studio views.
+
+---
+
 ## [1.15.2] - 2026-11-09
 
 ### Fixed

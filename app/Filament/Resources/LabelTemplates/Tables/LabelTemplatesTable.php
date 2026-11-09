@@ -5,8 +5,9 @@ namespace App\Filament\Resources\LabelTemplates\Tables;
 use App\Models\LabelTemplate;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Tables\Columns\BadgeColumn;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -46,6 +47,8 @@ class LabelTemplatesTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->stackedOnMobile()
+            ->recordAction('quick_print')
             ->recordActions([
                 Action::make('quick_print')
                     ->label('Print')
@@ -67,6 +70,12 @@ class LabelTemplatesTable
                     ->icon('heroicon-o-paint-brush')
                     ->color('primary')
                     ->url(fn (LabelTemplate $record) => url("/label-studio/{$record->id}")),
+
+                EditAction::make()
+                    ->label('Edit')
+                    ->slideOver(),
+
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -383,7 +383,7 @@
 <div id="toasts" class="toasts"></div>
 
 <script>window.STUDIO = @json($config);</script>
-<script src="{{ asset('vendor/label-studio/fabric.min.js') }}"></script>
+<script src="{{ asset('vendor/label-studio/fabric.min.js') }}?v={{ filemtime(public_path('vendor/label-studio/fabric.min.js')) }}"></script>
 <script src="{{ asset('vendor/label-studio/JsBarcode.all.min.js') }}"></script>
 <script src="{{ asset('vendor/label-studio/qrcode.min.js') }}"></script>
 <script src="{{ asset('js/label-studio.js') }}?v={{ filemtime(public_path('js/label-studio.js')) }}"></script>

@@ -94,6 +94,21 @@
                     loadScript('/vendor/label-studio/JsBarcode.all.min.js', () => typeof window.JsBarcode !== 'undefined'),
                     loadScript('/vendor/label-studio/qrcode.min.js', () => typeof window.qrcode !== 'undefined'),
                 ]);
+
+                // Patch CanvasTextBaseline enum bug in Fabric (alphabetical -> alphabetic)
+                if (typeof window.fabric !== 'undefined' && window.fabric.Text && window.fabric.Text.prototype) {
+                    window.fabric.Text.prototype._setTextStyles = function(ctx, prevStyle, thisStyle) {
+                        ctx.textBaseline = 'alphabetic';
+                        if (this.path) {
+                            switch (this.pathAlign) {
+                                case 'center': ctx.textBaseline = 'middle'; break;
+                                case 'ascender': ctx.textBaseline = 'top'; break;
+                                case 'descender': ctx.textBaseline = 'bottom'; break;
+                            }
+                        }
+                        ctx.font = this._getFontDeclaration(prevStyle, thisStyle);
+                    };
+                }
             },
 
             interpolate(text) {

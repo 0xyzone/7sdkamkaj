@@ -72,30 +72,61 @@ body {
         padding: 0.5rem !important;
     }
 
+    .fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row,
+    .fi-ta-table-stacked-on-mobile > tbody > tr,
     .fi-ta-record-stacked {
+        display: block !important;
         border-radius: 1rem !important;
         background-color: white !important;
         margin-bottom: 0.875rem !important;
         box-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.03) !important;
         border: 1px solid rgb(226 232 240 / 0.9) !important;
-        padding: 1rem !important;
+        padding: 0.875rem 1rem !important;
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
+    .fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row:active,
     .fi-ta-record-stacked:active {
         transform: scale(0.995);
     }
 
+    .dark .fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row,
+    .dark .fi-ta-table-stacked-on-mobile > tbody > tr,
     .dark .fi-ta-record-stacked {
-        background-color: rgb(15 23 42 / 0.8) !important;
-        border-color: rgb(51 65 85 / 0.6) !important;
-        box-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.25) !important;
+        background-color: rgb(15 23 42 / 0.85) !important;
+        border-color: rgb(51 65 85 / 0.7) !important;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.35) !important;
     }
 
-    /* Stacked card header & action styling */
+    /* Stacked card cell spacing */
+    .fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row > .fi-ta-cell:not(:has(.fi-ta-actions)),
     .fi-ta-record-stacked .fi-ta-cell {
-        padding-top: 0.35rem !important;
-        padding-bottom: 0.35rem !important;
+        padding-top: 0.25rem !important;
+        padding-bottom: 0.25rem !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* Stacked card action bar styling - no horizontal scroll needed */
+    .fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row > .fi-ta-cell:has(.fi-ta-actions) {
+        border-top: 1px solid rgb(226 232 240 / 0.8) !important;
+        margin-top: 0.65rem !important;
+        padding-top: 0.65rem !important;
+        padding-bottom: 0.2rem !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .dark .fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row > .fi-ta-cell:has(.fi-ta-actions) {
+        border-top-color: rgb(51 65 85 / 0.6) !important;
+    }
+
+    .fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row .fi-ta-actions {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
     }
 }
 

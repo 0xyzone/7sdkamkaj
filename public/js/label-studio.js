@@ -231,6 +231,19 @@
         borderColor: '#dc2626', cornerSize: 9, cornerStyle: 'rect', borderScaleFactor: 1.4, padding: 0,
     });
     fabric.IText.prototype.set({ editingBorderColor: '#dc2626', cursorColor: '#dc2626', selectionColor: 'rgba(220,38,38,.25)' });
+    if (fabric.Text && fabric.Text.prototype) {
+        fabric.Text.prototype._setTextStyles = function(ctx, prevStyle, thisStyle) {
+            ctx.textBaseline = 'alphabetic';
+            if (this.path) {
+                switch (this.pathAlign) {
+                    case 'center': ctx.textBaseline = 'middle'; break;
+                    case 'ascender': ctx.textBaseline = 'top'; break;
+                    case 'descender': ctx.textBaseline = 'bottom'; break;
+                }
+            }
+            ctx.font = this._getFontDeclaration(prevStyle, thisStyle);
+        };
+    }
     try { fabric.filterBackend = new fabric.Canvas2dFilterBackend(); } catch (e) { /* default backend */ }
     if (window.qrcode && qrcode.stringToBytesFuncs) qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
 
