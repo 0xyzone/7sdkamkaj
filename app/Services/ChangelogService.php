@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.9.9';
+    public const CURRENT_VERSION = '1.10.0';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,24 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.10.0',
+                'date' => '2026-11-09',
+                'title' => 'Automatic 1-Bit Black & White Thermal Image Conversion',
+                'type' => 'minor',
+                'badge' => 'Feature',
+                'badge_color' => 'primary',
+                'highlights' => 'When adding images or brand logos into Label Studio, they are now automatically converted into 1-bit monochrome black and white on the live canvas. Designers see pixel-perfect feedback matching the physical thermal printer output, with live threshold/darkness tuning, photographic dithering, negative inverting, and white-background transparency removal.',
+                'changes' => [
+                    'added' => [
+                        'Automatic thermal black & white conversion on image upload, drag-and-drop, and brand asset selection.',
+                        'Preserves PNG transparency so logos integrate smoothly without white bounding boxes.',
+                        'Live Thermal B&W controls in Properties panel: Darkness / Threshold slider, Dither mode (for photos), Invert (negative), and Make White Transparent.',
+                        'Direct drag-and-drop support: drop image files directly onto the canvas to insert as thermal black & white.',
+                        'Automatic backward-compatibility conversion of existing color images upon loading templates.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.9.9',
                 'date' => '2026-11-09',

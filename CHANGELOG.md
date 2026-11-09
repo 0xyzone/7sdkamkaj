@@ -4,6 +4,16 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-11-09
+
+### Added
+- **Automatic 1-Bit Black & White Thermal Image Conversion**: When adding images (file upload, drag-and-drop, or brand asset selection) to Label Studio, images are now automatically converted to 1-bit monochrome black & white. Gives true WYSIWYG feedback showing exactly what dots will burn on the thermal sticker.
+- **Thermal B&W Inspector Controls**: Added dedicated image controls to the Properties panel including a Darkness / Threshold slider (with real-time % indicator), Dither mode for continuous-tone photos, Invert (negative), Make White Transparent for JPEG logos, and a Reset B&W action.
+- **Drag-and-Drop Image Placement**: Dropping any image file directly onto the label workspace automatically inserts it as thermal black & white at cursor position.
+- **Backward-Compatible Auto-Conversion**: Existing color image layers in previously saved templates (like the Seven Series red logo) are automatically converted to crisp thermal black & white upon opening.
+
+---
+
 ## [1.9.9] - 2026-11-09
 
 ### Added

@@ -20,7 +20,8 @@
         'elType', 'layerName', 'lockedLayer', 'selectable', 'evented',
         'barcodeValue', 'barcodeFormat', 'barcodeModule', 'barcodeHeight', 'barcodeShowText',
         'qrValue', 'qrCell', 'qrEcc',
-        'imgBrightness', 'imgContrast', 'imgInvert', 'imageSmoothing', 'strokeUniform',
+        'origSrc', 'imgThreshold', 'imgDither', 'imgInvert', 'imgRemoveWhite',
+        'imgBrightness', 'imgContrast', 'imageSmoothing', 'strokeUniform',
     ];
 
     const WEB_FONTS = ['Poppins', 'Inter', 'Montserrat', 'Oswald', 'Bebas Neue', 'Playfair Display', 'Roboto Mono'];
@@ -553,14 +554,156 @@
         });
     }
 
-    function addImageFromURL(url, name, p) {
-        fabric.Image.fromURL(url, (img) => {
+    function convertImageToMonochrome(url, options = {}) {
+        return new Promise((resolve) => {
+            const threshold = options.threshold ?? 140;
+            const dither = !!options.dither;
+            const invert = !!options.invert;
+            const removeWhite = !!options.removeWhite;
+
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                const w = img.naturalWidth || img.width;
+                const h = img.naturalHeight || img.height;
+                if (!w || !h) return resolve(url);
+
+                const c = document.createElement('canvas');
+                c.width = w;
+                c.height = h;
+                const ctx = c.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                let imgData;
+                try {
+                    imgData = ctx.getImageData(0, 0, w, h);
+                } catch (e) {
+                    return resolve(url);
+                }
+
+                const d = imgData.data;
+                const g = new Float32Array(w * h);
+                const alpha = new Uint8Array(w * h);
+
+                for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+                    const a = d[i + 3];
+                    alpha[p] = a;
+                    // If pixel is transparent, treat as white paper for dithering calculations
+                    if (a < 32) {
+                        g[p] = 255;
+                    } else {
+                        g[p] = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
+                    }
+                }
+
+                for (let y = 0; y < h; y++) {
+                    for (let x = 0; x < w; x++) {
+                        const p = y * w + x;
+                        const a = alpha[p];
+
+                        // Keep original transparent pixels transparent
+                        if (a < 32) {
+                            d[p * 4] = 255;
+                            d[p * 4 + 1] = 255;
+                            d[p * 4 + 2] = 255;
+                            d[p * 4 + 3] = 0;
+                            continue;
+                        }
+
+                        const oldVal = g[p];
+                        let v = oldVal < threshold ? 0 : 255;
+
+                        if (dither) {
+                            const err = oldVal - v;
+                            if (x + 1 < w) g[p + 1] += err * (7 / 16);
+                            if (y + 1 < h) {
+                                if (x > 0) g[p + w - 1] += err * (3 / 16);
+                                g[p + w] += err * (5 / 16);
+                                if (x + 1 < w) g[p + w + 1] += err * (1 / 16);
+                            }
+                        }
+
+                        if (invert) {
+                            v = 255 - v;
+                        }
+
+                        if (removeWhite && v === 255) {
+                            d[p * 4] = 255;
+                            d[p * 4 + 1] = 255;
+                            d[p * 4 + 2] = 255;
+                            d[p * 4 + 3] = 0;
+                        } else {
+                            d[p * 4] = v;
+                            d[p * 4 + 1] = v;
+                            d[p * 4 + 2] = v;
+                            d[p * 4 + 3] = 255;
+                        }
+                    }
+                }
+
+                ctx.putImageData(imgData, 0, 0);
+                resolve(c.toDataURL('image/png'));
+            };
+            img.onerror = () => resolve(url);
+            img.src = url;
+        });
+    }
+
+    async function updateImageMonochrome(o) {
+        if (!o || o.elType !== 'image') return;
+        const src = o.origSrc || o.getSrc();
+        if (!src) return;
+        if (!o.origSrc) o.origSrc = src;
+
+        const bwUrl = await convertImageToMonochrome(o.origSrc, {
+            threshold: o.imgThreshold ?? 140,
+            dither: !!o.imgDither,
+            invert: !!o.imgInvert,
+            removeWhite: !!o.imgRemoveWhite,
+        });
+
+        const sx = o.scaleX, sy = o.scaleY, left = o.left, top = o.top, angle = o.angle;
+        o.setSrc(bwUrl, () => {
+            o.set({ scaleX: sx, scaleY: sy, left, top, angle });
+            o.setCoords();
+            canvas.requestRenderAll();
+            scheduleHistory(250);
+        });
+    }
+
+    const updateImageMonochromeDebounced = debounce(updateImageMonochrome, 120);
+
+    async function addImageFromURL(url, name, p) {
+        let srcUrl = url;
+        if (!url.startsWith('data:image/svg')) {
+            srcUrl = await downscaleDataURL(url, Math.max(W(), H()) * 2);
+        }
+
+        // Automatically convert image to 1-bit thermal black & white
+        const bwUrl = await convertImageToMonochrome(srcUrl, {
+            threshold: state.threshold || 140,
+            dither: false,
+            invert: false,
+            removeWhite: false,
+        });
+
+        fabric.Image.fromURL(bwUrl, (img) => {
             if (!img || !img.width) { toast('Image failed to load', name || '', 'error'); return; }
             const s = Math.min(1, (W() * 0.6) / img.width, (H() * 0.6) / img.height);
             img.scale(s);
             const at = p || { x: (W() - img.getScaledWidth()) / 2, y: (H() - img.getScaledHeight()) / 2 };
-            img.set({ left: at.x, top: at.y, elType: 'image', layerName: name || 'Image', imgBrightness: 0, imgContrast: 0, imgInvert: false });
+            img.set({
+                left: at.x, top: at.y,
+                elType: 'image',
+                layerName: name || 'Image',
+                origSrc: srcUrl,
+                imgThreshold: state.threshold || 140,
+                imgDither: false,
+                imgInvert: false,
+                imgRemoveWhite: false,
+            });
             placeAndSelect(img);
+            toast('Black & White Converted', 'Image automatically converted for thermal printing.', 'success');
         }, { crossOrigin: 'anonymous' });
     }
 
@@ -1012,11 +1155,20 @@
             h += fld('Colour', inkSeg('stroke', o.stroke, false));
             h += fld('Thickness', numIn('strokeMm', r1(o.strokeWidth / DPMM), { unit: 'mm', step: 0.1, min: 0.1 }));
         } else if (o.elType === 'image') {
-            h += fld(`Brightness <span class="hint">${o.imgBrightness || 0}</span>`, `<input type="range" min="-1" max="1" step="0.05" data-p="imgBrightness" value="${o.imgBrightness || 0}">`);
-            h += fld(`Contrast <span class="hint">${o.imgContrast || 0}</span>`, `<input type="range" min="-1" max="1" step="0.05" data-p="imgContrast" value="${o.imgContrast || 0}">`);
-            h += `<label class="check"><input type="checkbox" data-p="imgInvert" ${o.imgInvert ? 'checked' : ''}> Invert (negative)</label>`;
-            h += '<div class="btn-row"><button class="btn sm grow" data-action="fitImage">Fit to label</button></div>';
-            h += '<div class="hint">Thermal printers print pure black dots. Use the print preview to check, enable “Dither” for photos.</div>';
+            const thresh = o.imgThreshold ?? 140;
+            const threshPct = Math.round(((thresh - 20) / 220) * 100);
+            h += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                    <span style="font-size:11px;font-weight:700;color:var(--text);letter-spacing:0.04em;text-transform:uppercase">Thermal B&W Mode</span>
+                    <span style="font-size:10px;background:#22c55e;color:#000;padding:1px 6px;border-radius:4px;font-weight:700">1-BIT MONO</span>
+                  </div>`;
+            h += fld(`Darkness / Threshold <span class="hint" id="imgThreshVal">${threshPct}%</span>`, `<input type="range" min="20" max="240" step="5" data-p="imgThreshold" value="${thresh}">`);
+            h += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0">
+                    <label class="check" title="Recommended for photos and continuous gradients"><input type="checkbox" data-p="imgDither" ${o.imgDither ? 'checked' : ''}> Dither (Photos)</label>
+                    <label class="check" title="Invert black and white pixels"><input type="checkbox" data-p="imgInvert" ${o.imgInvert ? 'checked' : ''}> Invert (Negative)</label>
+                  </div>`;
+            h += `<label class="check" style="margin-bottom:8px" title="Converts white pixels into transparent background"><input type="checkbox" data-p="imgRemoveWhite" ${o.imgRemoveWhite ? 'checked' : ''}> Make White Transparent</label>`;
+            h += '<div class="btn-row" style="margin-top:6px"><button type="button" class="btn sm grow" data-action="fitImage">Fit to label</button><button type="button" class="btn sm" data-action="reconvertBW" title="Re-convert original image to black & white">Reset B&W</button></div>';
+            h += '<div class="hint" style="margin-top:6px">Thermal printers print pure black dots. The canvas displays exactly how it burns onto the sticker.</div>';
         }
         el.innerHTML = h + actions;
     }
@@ -1090,6 +1242,18 @@
             case 'barcodeShowText': o.barcodeShowText = !!val; refreshDynamicDebounced(o); return;
             case 'qrCell': o.qrCell = clamp(Math.round(n) || 1, 1, 40); refreshDynamicDebounced(o); return;
             case 'qrEcc': o.qrEcc = val; refreshDynamicDebounced(o); return;
+            case 'imgThreshold':
+                o.imgThreshold = clamp(Math.round(n) || 140, 20, 240);
+                const valEl = $('#imgThreshVal');
+                if (valEl) valEl.textContent = Math.round(((o.imgThreshold - 20) / 220) * 100) + '%';
+                updateImageMonochromeDebounced(o);
+                return;
+            case 'imgDither':
+            case 'imgInvert':
+            case 'imgRemoveWhite':
+                o[key] = !!val;
+                updateImageMonochrome(o);
+                return;
             case 'imgBrightness': case 'imgContrast': o[key] = n || 0; applyImageFilters(o); break;
             case 'imgInvert': o.imgInvert = !!val; applyImageFilters(o); break;
             default: return;
@@ -1918,6 +2082,16 @@
             align('c'); align('m');
             renderProps();
         },
+        reconvertBW: () => {
+            const o = canvas.getActiveObject();
+            if (!o || o.elType !== 'image') return;
+            o.imgThreshold = 140;
+            o.imgDither = false;
+            o.imgInvert = false;
+            o.imgRemoveWhite = false;
+            updateImageMonochrome(o);
+            renderProps();
+        },
     };
     document.addEventListener('click', (e) => {
         const a = e.target.closest('[data-action]');
@@ -1998,6 +2172,28 @@
         (prefs.collapsed || ['assets', 'variables']).forEach((p) => $(`.panel[data-panel="${p}"]`)?.classList.add('collapsed'));
         // Hydrate static icons in the Blade markup
         $$('i[data-icon]').forEach((el) => { if (!el.firstChild) el.innerHTML = svg(el.dataset.icon); });
+
+        // Drag & drop images directly onto the workspace
+        const ws = $('#workspace');
+        if (ws) {
+            ws.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            });
+            ws.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const files = e.dataTransfer?.files;
+                if (!files || !files.length) return;
+                const file = files[0];
+                if (!file.type.startsWith('image/')) return;
+                const pointer = canvas.getPointer(e);
+                const reader = new FileReader();
+                reader.onload = () => {
+                    addImageFromURL(reader.result, file.name.replace(/\.[^.]+$/, ''), pointer);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
     }
 
     async function boot() {
@@ -2029,6 +2225,21 @@
             legacy = true;
         }
         canvas.backgroundColor = '#ffffff';
+
+        // Automatically convert any existing image layer to thermal black & white
+        for (const o of canvas.getObjects()) {
+            if (o.elType === 'image') {
+                if (!o.origSrc) o.origSrc = o.getSrc();
+                if (o.imgThreshold === undefined) {
+                    o.imgThreshold = 140;
+                    o.imgDither = false;
+                    o.imgInvert = false;
+                    o.imgRemoveWhite = false;
+                    await updateImageMonochrome(o);
+                }
+            }
+        }
+
         state.muted--;
 
         renderVars();
