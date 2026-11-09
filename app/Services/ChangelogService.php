@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.15.0';
+    public const CURRENT_VERSION = '1.15.1';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,23 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.15.1',
+                'date' => '2026-11-09',
+                'title' => 'Quick Print Slide-Over Canvas Engine & Button Text Binding Fix',
+                'type' => 'patch',
+                'badge' => 'Fix',
+                'badge_color' => 'success',
+                'highlights' => 'Resolved blank preview canvas and missing button label text in the Resource List Quick Print slide-over modal. Pre-loaded canvas engines, implemented robust dependency polling, supported both Studio JSON and legacy element arrays, and eliminated HTML single-quote attribute collisions.',
+                'changes' => [
+                    'fixed' => [
+                        'Fixed blank thermal preview canvas: now properly loads Studio JSON and legacy element arrays into Fabric StaticCanvas with enableRetinaScaling disabled.',
+                        'Fixed missing button label text: replaced fragile x-text quote evaluations with solid x-show state switches for Direct USB Print, Bluetooth Print, and Server Spool.',
+                        'Pre-loaded core script assets (fabric.js, JsBarcode, qrcode) at the modal root with active dependency readiness polling before preview rendering.',
+                        'Added image layer loading synchronization to ensure embedded photos and logos render completely before 1-bit thermal conversion.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.15.0',
                 'date' => '2026-11-09',

@@ -4,6 +4,14 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.1] - 2026-11-09
+
+### Fixed
+- **Quick Print Modal Blank Preview Canvas**: Fixed an issue where the thermal label preview canvas rendered completely blank inside the slide-over modal on `/label-templates`. Now reliably initializes Fabric `StaticCanvas` (with `enableRetinaScaling: false`), pre-loads engine assets, supports both Studio JSON and legacy element arrays, and synchronizes image decoding before 1-bit thermal bitmap conversion.
+- **Missing Action Button Labels**: Resolved missing text inside Direct USB Print, Bluetooth Print, and Server Spool buttons caused by HTML single-quote attribute escaping collisions in Alpine `x-text` bindings. Buttons now use stable declarative `x-show` state toggling.
+
+---
+
 ## [1.15.0] - 2026-11-09
 
 ### Added

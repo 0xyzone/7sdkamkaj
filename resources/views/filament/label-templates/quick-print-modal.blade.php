@@ -6,6 +6,11 @@
     $usedVars = array_values(array_unique($matches[1] ?? []));
 @endphp
 
+{{-- Pre-load core canvas & barcode engines --}}
+<script src="{{ asset('vendor/label-studio/fabric.min.js') }}"></script>
+<script src="{{ asset('vendor/label-studio/JsBarcode.all.min.js') }}"></script>
+<script src="{{ asset('vendor/label-studio/qrcode.min.js') }}"></script>
+
 <div
     x-data="quickPrintComponent_{{ $template->id }}()"
     x-init="init()"
@@ -100,13 +105,14 @@
                             min="1"
                             max="500"
                             x-model.number="copies"
+                            value="1"
                             class="w-full bg-[#13151b] border border-gray-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-red-500 focus:outline-none"
                         >
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="flex items-center justify-between text-xs font-medium text-gray-400">
                             <span>Darkness</span>
-                            <span class="text-gray-300 font-mono text-[11px]" x-text="Math.round(((threshold - 60) / 170) * 100) + '%'"></span>
+                            <span class="text-gray-300 font-mono text-[11px]" x-text="darknessLabel()">47%</span>
                         </label>
                         <input
                             type="range"
@@ -114,6 +120,7 @@
                             max="230"
                             step="5"
                             x-model.number="threshold"
+                            value="140"
                             @input="renderPreview()"
                             class="w-full accent-red-500 cursor-pointer mt-1"
                         >
@@ -183,7 +190,8 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4M12 5v14"/>
                     </svg>
-                    <span x-text="printingUsb ? 'Sending via USB…' : 'Direct USB Print'"></span>
+                    <span x-show="!printingUsb">Direct USB Print</span>
+                    <span x-show="printingUsb" style="display:none;">Sending via USB…</span>
                 </button>
 
                 {{-- Wireless Bluetooth Print --}}
@@ -196,7 +204,8 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19l6-6-6-6M12 5v14"/>
                     </svg>
-                    <span x-text="printingBt ? 'Connecting Bluetooth…' : 'Bluetooth Print (Deli / BLE)'"></span>
+                    <span x-show="!printingBt">Bluetooth Print (Deli / BLE)</span>
+                    <span x-show="printingBt" style="display:none;">Connecting Bluetooth…</span>
                 </button>
 
                 {{-- Server Spool & Studio Links --}}
@@ -210,7 +219,8 @@
                         <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                         </svg>
-                        <span x-text="printingServer ? 'Spooling…' : 'Server Spool'"></span>
+                        <span x-show="!printingServer">Server Spool</span>
+                        <span x-show="printingServer" style="display:none;">Spooling…</span>
                     </button>
 
                     <a
@@ -262,6 +272,10 @@ function quickPrintComponent_{{ $template->id }}() {
             qr: 'https://7series.com.np',
         },
 
+        darknessLabel() {
+            return Math.round(((this.threshold - 60) / 170) * 100) + '%';
+        },
+
         async init() {
             await this.ensureDependencies();
             // Load saved studio vars if present in template
@@ -272,17 +286,33 @@ function quickPrintComponent_{{ $template->id }}() {
         },
 
         async ensureDependencies() {
-            const loadScript = (src) => new Promise((resolve) => {
-                if (document.querySelector(`script[src="${src}"]`)) return resolve();
-                const s = document.createElement('script');
-                s.src = src;
-                s.onload = resolve;
-                document.head.appendChild(s);
+            const isFabricReady = () => typeof window.fabric !== 'undefined' && typeof window.fabric.StaticCanvas !== 'undefined';
+            if (isFabricReady() && typeof window.JsBarcode !== 'undefined' && typeof window.qrcode !== 'undefined') {
+                return;
+            }
+
+            const loadScript = (src, isReady) => new Promise((resolve) => {
+                if (isReady()) return resolve();
+                let existing = document.querySelector(`script[src="${src}"]`);
+                if (!existing) {
+                    existing = document.createElement('script');
+                    existing.src = src;
+                    document.head.appendChild(existing);
+                }
+                const start = Date.now();
+                const poll = setInterval(() => {
+                    if (isReady() || Date.now() - start > 8000) {
+                        clearInterval(poll);
+                        resolve();
+                    }
+                }, 40);
             });
 
-            if (!window.fabric) await loadScript('{{ asset('vendor/label-studio/fabric.min.js') }}');
-            if (!window.JsBarcode) await loadScript('{{ asset('vendor/label-studio/JsBarcode.all.min.js') }}');
-            if (!window.qrcode) await loadScript('{{ asset('vendor/label-studio/qrcode.min.js') }}');
+            await Promise.all([
+                loadScript('{{ asset('vendor/label-studio/fabric.min.js') }}', isFabricReady),
+                loadScript('{{ asset('vendor/label-studio/JsBarcode.all.min.js') }}', () => typeof window.JsBarcode !== 'undefined'),
+                loadScript('{{ asset('vendor/label-studio/qrcode.min.js') }}', () => typeof window.qrcode !== 'undefined'),
+            ]);
         },
 
         interpolate(text) {
@@ -293,42 +323,149 @@ function quickPrintComponent_{{ $template->id }}() {
         async renderPreview() {
             this.loading = true;
             try {
-                const DPMM = 8; // 203 DPI
+                await this.ensureDependencies();
+                if (typeof window.fabric === 'undefined' || !window.fabric.StaticCanvas) {
+                    throw new Error('Canvas engine initializing…');
+                }
+
+                const DPMM = 8; // 203 DPI (8 dots per mm)
                 const w = Math.round(this.widthMm * DPMM);
                 const h = Math.round(this.heightMm * DPMM);
 
-                // Create offscreen Fabric canvas
-                const el = document.createElement('canvas');
-                el.width = w; el.height = h;
-                const fc = new fabric.StaticCanvas(el, { width: w, height: h, backgroundColor: '#ffffff' });
+                // Create offscreen StaticCanvas with enableRetinaScaling disabled to prevent pixel doubling
+                const sc = new fabric.StaticCanvas(null, {
+                    width: w,
+                    height: h,
+                    enableRetinaScaling: false,
+                    renderOnAddRemove: false,
+                    backgroundColor: '#ffffff',
+                });
 
-                if (this.elements && this.elements.objects) {
-                    await new Promise((r) => fc.loadFromJSON(this.elements, r));
+                let els = this.elements;
+                if (typeof els === 'string') {
+                    try { els = JSON.parse(els); } catch (_) {}
                 }
 
-                // Interpolate variables into text and barcode layers
-                for (const o of fc.getObjects()) {
+                if (els && !Array.isArray(els) && Array.isArray(els.objects)) {
+                    // Studio JSON format - extract canvas elements
+                    const { studio, ...json } = els;
+                    await new Promise((r) => sc.loadFromJSON(json, r));
+                } else if (Array.isArray(els) && els.length) {
+                    // Legacy array elements format
+                    const f = 8 / 5.5; // Scale from legacy 5.5 dpmm to 8 dpmm
+                    for (const el of els) {
+                        const x = (el.x || 0) * f, y = (el.y || 0) * f;
+                        let o = null;
+                        if (el.type === 'text') {
+                            o = new fabric.IText(el.content || '', {
+                                left: x,
+                                top: y,
+                                fontSize: (el.fontSize || 14) * f,
+                                fontWeight: el.bold ? 'bold' : 'normal',
+                                fontFamily: el.fontFamily || 'Arial',
+                                fill: '#000000',
+                                elType: 'text',
+                            });
+                        } else if (el.type === 'line') {
+                            o = new fabric.Rect({
+                                left: x,
+                                top: y,
+                                width: (el.width || 100) * f,
+                                height: Math.max(2, (el.height || 2) * f),
+                                fill: '#000000',
+                                strokeWidth: 0,
+                                elType: 'rect',
+                            });
+                        } else if (el.type === 'box' || el.type === 'rect') {
+                            o = new fabric.Rect({
+                                left: x,
+                                top: y,
+                                width: (el.width || 80) * f,
+                                height: (el.height || 40) * f,
+                                fill: el.fill || '',
+                                stroke: '#000000',
+                                strokeWidth: (el.thickness || 2) * f,
+                                strokeUniform: true,
+                                rx: (el.rx || 0) * f,
+                                ry: (el.ry || 0) * f,
+                                elType: 'rect',
+                            });
+                        } else if (el.type === 'barcode') {
+                            o = new fabric.Image(document.createElement('canvas'), {
+                                left: x,
+                                top: y,
+                                elType: 'barcode',
+                                barcodeValue: el.content || '@{{barcode}}',
+                                barcodeFormat: el.format || 'CODE128',
+                                barcodeModule: el.module || 2,
+                                barcodeHeight: Math.round((el.height || 40) * f),
+                                barcodeShowText: el.showText !== false,
+                            });
+                        } else if (el.type === 'qrcode') {
+                            o = new fabric.Image(document.createElement('canvas'), {
+                                left: x,
+                                top: y,
+                                elType: 'qr',
+                                qrValue: el.content || 'https://7series.com.np',
+                                qrCell: 4,
+                            });
+                        }
+                        if (o) sc.add(o);
+                    }
+                }
+
+                // Wait for any embedded images to complete loading
+                const imgObjs = sc.getObjects().filter((o) => o.type === 'image' && o.getElement());
+                if (imgObjs.length) {
+                    await Promise.all(imgObjs.map((img) => new Promise((res) => {
+                        const el = img.getElement();
+                        if (!el || el.complete) return res();
+                        el.onload = () => res();
+                        el.onerror = () => res();
+                        setTimeout(res, 2000);
+                    })));
+                }
+
+                // Interpolate dynamic template text variables while keeping anchor alignment
+                const walk = (o) => {
                     if (o.type === 'i-text' || o.type === 'text') {
-                        o.set('text', this.interpolate(o.text));
-                    } else if (o.elType === 'barcode' && window.JsBarcode) {
+                        if (!o.origTemplateText) o.origTemplateText = o.text;
+                        const t = this.interpolate(o.origTemplateText);
+                        if (t !== o.text) {
+                            const anchor = o.textAlign === 'center' ? 'center' : o.textAlign === 'right' ? 'right' : 'left';
+                            const p = o.getPointByOrigin(anchor, 'top');
+                            o.set('text', t);
+                            o.setPositionByOrigin(p, anchor, 'top');
+                        }
+                    }
+                    if (o._objects) o._objects.forEach(walk);
+                };
+                sc.getObjects().forEach(walk);
+
+                // Render dynamic barcode & QR layers
+                for (const o of sc.getObjects()) {
+                    if (o.elType === 'barcode' && window.JsBarcode) {
                         try {
                             const bcCanvas = document.createElement('canvas');
-                            window.JsBarcode(bcCanvas, this.interpolate(o.barcodeValue || '890123456789'), {
+                            const val = this.interpolate(o.barcodeValue || '890123456789');
+                            window.JsBarcode(bcCanvas, val, {
                                 format: o.barcodeFormat || 'CODE128',
                                 width: o.barcodeModule || 2,
                                 height: o.barcodeHeight || 80,
-                                displayValue: !!o.barcodeShowText,
+                                displayValue: o.barcodeShowText !== false,
                                 font: 'Arial',
-                                fontSize: 18,
+                                fontSize: 16,
                                 background: '#ffffff',
                                 lineColor: '#000000',
                             });
                             o.setElement(bcCanvas);
+                            o.set({ width: bcCanvas.width, height: bcCanvas.height });
                         } catch (_) {}
                     } else if (o.elType === 'qr' && window.qrcode) {
                         try {
+                            const val = this.interpolate(o.qrValue || 'https://7series.com.np');
                             const qr = window.qrcode(0, 'M');
-                            qr.addData(this.interpolate(o.qrValue || 'https://7series.com.np'));
+                            qr.addData(val);
                             qr.make();
                             const qrCanvas = document.createElement('canvas');
                             const cell = o.qrCell || 4;
@@ -343,14 +480,16 @@ function quickPrintComponent_{{ $template->id }}() {
                                 }
                             }
                             o.setElement(qrCanvas);
+                            o.set({ width: qrCanvas.width, height: qrCanvas.height });
                         } catch (_) {}
                     }
                 }
-                fc.renderAll();
 
-                // Convert to 1-bit monochrome bitmap
-                this.monoCanvas = this.toMono(fc.getElement(), this.threshold, this.dither);
-                fc.dispose();
+                sc.renderAll();
+
+                // Convert to 1-bit monochrome thermal bitmap
+                this.monoCanvas = this.toMono(sc.getElement(), this.threshold, this.dither);
+                sc.dispose();
 
                 // Paint onto preview canvas
                 const target = document.getElementById('qpCanvas_{{ $template->id }}');
@@ -360,7 +499,7 @@ function quickPrintComponent_{{ $template->id }}() {
                     const tctx = target.getContext('2d');
                     tctx.drawImage(this.monoCanvas, 0, 0);
 
-                    // Responsive scale
+                    // Responsive scale inside preview box
                     const maxW = 460, maxH = 340;
                     let scale = Math.min(maxW / target.width, maxH / target.height);
                     if (scale >= 1) scale = Math.floor(scale);
@@ -369,9 +508,11 @@ function quickPrintComponent_{{ $template->id }}() {
                 }
 
                 this.downloadDataUrl = this.monoCanvas.toDataURL('image/png');
-                this.statsText = `${w} × ${h} dots · ${this.widthMm} × ${this.heightMm} mm · ${Math.round((this.monoCanvas.blackRatio || 0) * 100)}% ink`;
+                const inkCoverage = Math.round((this.monoCanvas.blackRatio || 0) * 100);
+                this.statsText = `${w} × ${h} dots · ${this.widthMm} × ${this.heightMm} mm · ${inkCoverage}% ink`;
             } catch (err) {
                 console.error('Quick print preview error:', err);
+                this.statsText = 'Preview calculating…';
             } finally {
                 this.loading = false;
             }
