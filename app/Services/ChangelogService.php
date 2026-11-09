@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.11.0';
+    public const CURRENT_VERSION = '1.12.0';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,22 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.12.0',
+                'date' => '2026-11-09',
+                'title' => 'Interactive Rounded Corner Dragging & Radius Controls',
+                'type' => 'minor',
+                'badge' => 'Feature',
+                'badge_color' => 'primary',
+                'highlights' => 'Rectangles now feature interactive on-canvas corner radius handles inside all four corners (similar to Figma and Illustrator) allowing designers to drag inwards/outwards to round or sharpen corners directly on the canvas, paired with live numeric and slider controls in the Properties panel.',
+                'changes' => [
+                    'added' => [
+                        'Interactive on-canvas corner radius handles: drag circular red handles inside the rectangle corners to round corners dynamically.',
+                        'Real-time Properties synchronization: Corner Roundness slider and Corner radius (mm) number input update smoothly while dragging.',
+                        'Live input listeners: typing or stepping numeric fields in the Properties panel updates the canvas instantly without requiring blur/enter.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.11.0',
                 'date' => '2026-11-09',

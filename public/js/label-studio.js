@@ -193,6 +193,106 @@
     try { fabric.filterBackend = new fabric.Canvas2dFilterBackend(); } catch (e) { /* default backend */ }
     if (window.qrcode && qrcode.stringToBytesFuncs) qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
 
+    // Interactive corner radius dragging handles for rectangles
+    function createCornerRadiusControl(corner) {
+        return new fabric.Control({
+            actionName: 'cornerRadius',
+            cursorStyle: 'pointer',
+            positionHandler: function (dim, finalMatrix, fabricObject) {
+                if (!fabricObject || fabricObject.width < 25 || fabricObject.height < 25) {
+                    return fabric.util.transformPoint({ x: -9999, y: -9999 }, finalMatrix);
+                }
+                const maxR = Math.min(dim.x, dim.y) / 2;
+                const r = Math.min(maxR, Math.max(0, fabricObject.rx || 0));
+                const offset = Math.min(maxR - 2, Math.max(9, r + 4));
+
+                let x = 0, y = 0;
+                switch (corner) {
+                    case 'tl': x = -dim.x / 2 + offset; y = -dim.y / 2 + offset; break;
+                    case 'tr': x = dim.x / 2 - offset; y = -dim.y / 2 + offset; break;
+                    case 'br': x = dim.x / 2 - offset; y = dim.y / 2 - offset; break;
+                    case 'bl': x = -dim.x / 2 + offset; y = dim.y / 2 - offset; break;
+                }
+                return fabric.util.transformPoint({ x, y }, finalMatrix);
+            },
+            actionHandler: function (eventData, transform, x, y) {
+                const target = transform.target;
+                if (!target || target.type !== 'rect') return false;
+
+                const inv = fabric.util.invertTransform(target.calcTransformMatrix());
+                const local = fabric.util.transformPoint(new fabric.Point(x, y), inv);
+
+                const maxR = Math.min(target.width, target.height) / 2;
+                const w = target.width, h = target.height;
+                let dx = 0, dy = 0;
+
+                switch (corner) {
+                    case 'tl': dx = local.x - (-w / 2); dy = local.y - (-h / 2); break;
+                    case 'tr': dx = w / 2 - local.x; dy = local.y - (-h / 2); break;
+                    case 'br': dx = w / 2 - local.x; dy = h / 2 - local.y; break;
+                    case 'bl': dx = local.x - (-w / 2); dy = h / 2 - local.y; break;
+                }
+
+                const dist = Math.max(dx, dy);
+                const newR = clamp(Math.round(dist - 4), 0, Math.round(maxR));
+
+                target.set({ rx: newR, ry: newR });
+
+                // Synchronize Properties panel inputs live
+                const curMm = r1(newR / DPMM);
+                const numInput = document.querySelector('input[data-p="radiusMm"][type="number"]');
+                if (numInput && document.activeElement !== numInput) numInput.value = curMm;
+                const rangeInput = document.querySelector('input[data-p="radiusMm"][type="range"]');
+                if (rangeInput && document.activeElement !== rangeInput) rangeInput.value = curMm;
+                const hint = document.getElementById('radiusHint');
+                if (hint) hint.textContent = `${curMm} mm`;
+
+                return true;
+            },
+            render: function (ctx, left, top, styleOverride, fabricObject) {
+                if (!fabricObject || fabricObject.width < 25 || fabricObject.height < 25) return;
+                ctx.save();
+                ctx.translate(left, top);
+
+                // Drop shadow
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+                ctx.shadowBlur = 3;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 1;
+
+                // Circular white handle
+                ctx.beginPath();
+                ctx.arc(0, 0, 4.5, 0, Math.PI * 2, false);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+
+                // Brand red border
+                ctx.shadowColor = 'transparent';
+                ctx.lineWidth = 1.8;
+                ctx.strokeStyle = '#dc2626';
+                ctx.stroke();
+
+                // Center red dot
+                ctx.beginPath();
+                ctx.arc(0, 0, 1.8, 0, Math.PI * 2, false);
+                ctx.fillStyle = '#dc2626';
+                ctx.fill();
+
+                ctx.restore();
+            },
+        });
+    }
+
+    if (fabric.Rect && fabric.Rect.prototype) {
+        fabric.Rect.prototype.controls = {
+            ...fabric.Object.prototype.controls,
+            radius_tl: createCornerRadiusControl('tl'),
+            radius_tr: createCornerRadiusControl('tr'),
+            radius_br: createCornerRadiusControl('br'),
+            radius_bl: createCornerRadiusControl('bl'),
+        };
+    }
+
     const canvas = new fabric.Canvas('labelCanvas', {
         backgroundColor: '#ffffff',
         preserveObjectStacking: true,
@@ -1269,11 +1369,23 @@
             h += varChips();
             h += `<div class="row">${fld('Cell size', numIn('qrCell', o.qrCell, { unit: 'dots', step: 1, min: 1, max: 40 }))}
                 ${fld('Error correction', `<select data-p="qrEcc">${['L', 'M', 'Q', 'H'].map((v) => `<option ${v === o.qrEcc ? 'selected' : ''}>${v}</option>`).join('')}</select>`)}</div>`;
-        } else if (o.type === 'rect' || o.type === 'ellipse') {
+        } else if (o.type === 'rect') {
+            const maxR = r1((Math.min(o.width, o.height) / 2) / DPMM);
+            const curR = r1((o.rx || 0) / DPMM);
             h += fld('Fill', inkSeg('fill', o.fill));
             h += fld('Stroke', inkSeg('stroke', o.stroke));
-            h += `<div class="row">${fld('Stroke width', numIn('strokeMm', r1((o.strokeWidth || 0) / DPMM), { unit: 'mm', step: 0.1, min: 0.1 }))}
-                ${o.type === 'rect' ? fld('Corner radius', numIn('radiusMm', r1((o.rx || 0) / DPMM), { unit: 'mm', step: 0.5, min: 0 })) : '<span></span>'}</div>`;
+            h += `<div class="row">
+                    ${fld('Stroke width', numIn('strokeMm', r1((o.strokeWidth || 0) / DPMM), { unit: 'mm', step: 0.1, min: 0.1 }))}
+                    ${fld('Corner radius', numIn('radiusMm', curR, { unit: 'mm', step: 0.5, min: 0, max: maxR }))}
+                  </div>`;
+            h += fld(`Corner Roundness <span class="hint" id="radiusHint">${curR} mm</span>`, `<input type="range" min="0" max="${maxR}" step="0.2" data-p="radiusMm" value="${curR}">`);
+            h += `<label class="check" style="margin-top:4px"><input type="checkbox" data-p="dashed" ${o.strokeDashArray ? 'checked' : ''}> Dashed outline</label>`;
+            h += '<div class="hint" style="margin-top:6px">Tip: Drag the circular red corner handles inside the rectangle on canvas to round corners directly!</div>';
+        } else if (o.type === 'ellipse') {
+            h += fld('Fill', inkSeg('fill', o.fill));
+            h += fld('Stroke', inkSeg('stroke', o.stroke));
+            h += `<div class="row">${fld('Stroke width', numIn('strokeMm', r1((o.strokeWidth || 0) / DPMM), { unit: 'mm', step: 0.1, min: 0.1 }))}<span></span></div>`;
+            h += `<label class="check" style="margin-top:4px"><input type="checkbox" data-p="dashed" ${o.strokeDashArray ? 'checked' : ''}> Dashed outline</label>`;
         } else if (o.type === 'line') {
             h += fld('Colour', inkSeg('stroke', o.stroke, false));
             h += `<div class="row">${fld('Thickness', numIn('strokeMm', r1(o.strokeWidth / DPMM), { unit: 'mm', step: 0.1, min: 0.1 }))}
@@ -1401,7 +1513,22 @@
                 if (n > 0) o.set('strokeWidth', Math.max(1, n * DPMM));
                 if (o.strokeDashArray) o.set('strokeDashArray', [o.strokeWidth * 3, o.strokeWidth * 2]);
                 break;
-            case 'radiusMm': o.set({ rx: Math.max(0, (n || 0) * DPMM), ry: Math.max(0, (n || 0) * DPMM) }); break;
+            case 'radiusMm': {
+                const maxR = Math.min(o.width, o.height) / 2;
+                const rPx = clamp(Math.round((n || 0) * DPMM), 0, Math.round(maxR));
+                o.set({ rx: rPx, ry: rPx });
+                const curMm = r1(rPx / DPMM);
+                const hint = $('#radiusHint');
+                if (hint) hint.textContent = `${curMm} mm`;
+                if (ev === 'input') {
+                    const numInp = $(`input[data-p="radiusMm"][type="number"]`);
+                    if (numInp && document.activeElement !== numInp) numInp.value = curMm;
+                } else {
+                    const rangeInp = $(`input[data-p="radiusMm"][type="range"]`);
+                    if (rangeInp) rangeInp.value = curMm;
+                }
+                break;
+            }
             case 'dashed': o.set('strokeDashArray', val ? [o.strokeWidth * 3, o.strokeWidth * 2] : null); break;
             case 'barcodeValue': case 'qrValue': o[key] = val; refreshDynamicDebounced(o); return;
             case 'barcodeFormat': o.barcodeFormat = val; refreshDynamicDebounced(o); return;
@@ -1444,9 +1571,12 @@
         el.addEventListener('input', (e) => {
             const t = e.target;
             if (!t.dataset.p) return;
-            if (t.type === 'range' || t.dataset.live || t.tagName === 'TEXTAREA') {
+            if (t.type === 'range' || t.type === 'number' || t.dataset.live || t.tagName === 'TEXTAREA') {
                 applyProp(t.dataset.p, t.value, 'input');
-                if (t.type === 'range') { const lbl = t.closest('.fld')?.querySelector('.hint'); if (lbl) lbl.textContent = t.value; }
+                if (t.type === 'range') {
+                    const lbl = t.closest('.fld')?.querySelector('.hint');
+                    if (lbl) lbl.textContent = t.value + (t.dataset.p === 'radiusMm' ? ' mm' : '');
+                }
             }
         });
         el.addEventListener('click', (e) => {
