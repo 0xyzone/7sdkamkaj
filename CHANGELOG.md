@@ -4,6 +4,18 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-11-09
+
+### Added
+- **Printing & Label Design Module**: New navigation category providing label template design and hardware printer management.
+- **Thermal Printer Hardware Management**: `PrinterResource` for tracking USB, macOS CUPS, and Raw TCP/IP Network label printers with real-time status detection (`Idle/Ready`, `Printing`, `Offline/Disabled`).
+- **Interactive Label Canvas Designer**: Visual label design canvas with tools: Select/Move, Freehand Pen, Eraser, Dynamic Garment Text, 1D Barcodes, QR Codes, Lines, and Bounding Boxes.
+- **Standard & Custom Label Sizing**: Presets for 50x30mm, 50x70mm, 40x30mm, 60x40mm, 80x50mm, 100x150mm, and custom dimension constraints capped at maximum thermal print nozzle width (108mm).
+- **Direct Hardware Printing Service**: `PrintService` and TSPL compiler compiling visual layouts directly to TSPL printer commands and dispatching raw print jobs to connected printers (such as Deli E886BW).
+- **Instant Test Print & Dynamic Label Variables**: Direct "Send to Printer" action supporting variable interpolation (`{{brand}}`, `{{item_name}}`, `{{size}}`, `{{price}}`, `{{barcode}}`) and copy quantities.
+
+---
+
 ## [1.7.0] - 2026-10-17
 
 ### Added
