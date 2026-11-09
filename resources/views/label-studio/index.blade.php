@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Label Studio · 7 Series Kamkaj</title>
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
@@ -16,36 +16,44 @@
     {{-- ===== Menu bar ===== --}}
     <header class="menubar">
         <a class="brand" href="{{ url('/label-templates') }}" title="Back to panel">
+            <i data-icon="back" class="mobile-only"></i>
             <img src="{{ asset('images/symbol.png') }}" alt="7">
-            <span>Label Studio</span>
+            <span class="desktop-only">Label Studio</span>
         </a>
-        <div class="menu-group">
+        <div class="menu-group desktop-only">
             <button class="mbtn" data-action="new" title="New label (⌥N)"><i data-icon="filePlus"></i><span>New</span></button>
-            <div class="mselect">
-                <i data-icon="folder"></i>
-                <select id="templatePicker" title="Open template"></select>
-            </div>
-            <button class="mbtn" data-action="save" title="Save (⌘S)"><i data-icon="save"></i><span>Save</span></button>
             <button class="mbtn" data-action="saveAs" title="Save as new template"><span>Save As…</span></button>
         </div>
-        <div class="menu-sep"></div>
-        <div class="menu-group">
+        <div class="mselect">
+            <i data-icon="folder"></i>
+            <select id="templatePicker" title="Open template"></select>
+        </div>
+        <div class="menu-sep desktop-only"></div>
+        <div class="menu-group undo-redo-group">
             <button class="mbtn icon" data-action="undo" id="btnUndo" title="Undo (⌘Z)"><i data-icon="undo"></i></button>
             <button class="mbtn icon" data-action="redo" id="btnRedo" title="Redo (⇧⌘Z)"><i data-icon="redo"></i></button>
         </div>
-        <div class="doc-title">
+        <div class="doc-title desktop-only">
             <input id="docName" type="text" spellcheck="false" title="Template name">
             <span id="dirtyDot" class="dirty-dot" title="Unsaved changes"></span>
         </div>
         <div class="menu-right">
-            <button class="mbtn" data-action="openQueue" id="btnQueue" title="View print queue & cancel jobs">
+            <button class="mbtn desktop-only" data-action="openQueue" id="btnQueue" title="View print queue & cancel jobs">
                 <i data-icon="queue"></i><span>Queue</span><span id="queueBadge" class="q-badge" style="display:none">0</span>
             </button>
-            <div class="printer-pill" id="printerPill" title="Printer status">
+            <div class="printer-pill desktop-only" id="printerPill" title="Printer status">
                 <span class="dot"></span><span class="txt">Checking…</span>
             </div>
-            <button class="mbtn primary" data-action="preview" title="Print (⌘P)"><i data-icon="print"></i><span>Print</span></button>
-            <a class="mbtn" href="{{ url('/label-templates') }}" title="Back to panel"><i data-icon="back"></i><span>Panel</span></a>
+            <button class="mbtn icon mobile-only" data-action="openLayers" id="btnMobileTopLayers" title="Layers">
+                <i data-icon="layers"></i><span class="top-badge" id="topLayerBadge">0</span>
+            </button>
+            <button class="mbtn" data-action="save" id="btnTopSave" title="Save (⌘S)">
+                <i data-icon="save"></i><span class="desktop-only">Save</span><span id="mobileDirtyDot" class="m-dirty-dot" style="display:none;"></span>
+            </button>
+            <button class="mbtn primary" data-action="preview" id="btnTopPrint" title="Print (⌘P)">
+                <i data-icon="print"></i><span>Print</span>
+            </button>
+            <a class="mbtn desktop-only" href="{{ url('/label-templates') }}" title="Back to panel"><i data-icon="back"></i><span>Panel</span></a>
         </div>
     </header>
 
@@ -66,30 +74,51 @@
             </div>
         </section>
 
-        {{-- ===== Right panels ===== --}}
-        <aside class="panels" id="panels">
-            <section class="panel" data-panel="properties">
-                <header class="panel-head"><span>Properties</span></header>
-                <div class="panel-body" id="propsPanel"></div>
-            </section>
+        {{-- ===== Right panels / Mobile Drawer ===== --}}
+        <aside class="panels" id="panels" data-active-tab="layers">
+            {{-- Mobile Drawer Segmented Tabs --}}
+            <div class="mobile-drawer-tabs">
+                <button type="button" class="md-tab active" data-drawer-tab="layers">
+                    <i data-icon="layers"></i>
+                    <span>Layers (<span id="mobileLayerCount">0</span>)</span>
+                </button>
+                <button type="button" class="md-tab" data-drawer-tab="properties">
+                    <i data-icon="sliders"></i>
+                    <span>Properties</span>
+                </button>
+                <button type="button" class="md-tab" data-drawer-tab="document">
+                    <i data-icon="paper"></i>
+                    <span>Paper</span>
+                </button>
+                <button type="button" class="md-tab" data-drawer-tab="assets">
+                    <i data-icon="symbol"></i>
+                    <span>Assets</span>
+                </button>
+                <button type="button" class="md-tab-close" id="btnDrawerClose" title="Close Drawer">×</button>
+            </div>
             <section class="panel grow" data-panel="layers">
-                <header class="panel-head"><span>Layers</span><span class="count" id="layerCount">0</span></header>
+                <header class="panel-head desktop-only"><span>Layers</span><span class="count" id="layerCount">0</span></header>
                 <div class="panel-body flush" id="layersPanel"></div>
             </section>
+            <section class="panel" data-panel="properties">
+                <header class="panel-head desktop-only"><span>Properties</span></header>
+                <div class="panel-body" id="propsPanel"></div>
+            </section>
             <section class="panel" data-panel="document">
-                <header class="panel-head"><span>Label &amp; Paper</span></header>
+                <header class="panel-head desktop-only"><span>Label &amp; Paper</span></header>
                 <div class="panel-body" id="docPanel"></div>
             </section>
             <section class="panel" data-panel="assets">
-                <header class="panel-head"><span>Assets &amp; Symbols</span></header>
+                <header class="panel-head desktop-only"><span>Assets &amp; Symbols</span></header>
                 <div class="panel-body" id="assetsPanel"></div>
             </section>
             <section class="panel" data-panel="variables">
-                <header class="panel-head"><span>Variables (sample data)</span></header>
+                <header class="panel-head desktop-only"><span>Variables (sample data)</span></header>
                 <div class="panel-body" id="varsPanel"></div>
             </section>
         </aside>
     </main>
+    <div class="panels-backdrop" id="panelsBackdrop"></div>
 
     {{-- ===== Status bar ===== --}}
     <footer class="statusbar">
@@ -144,6 +173,13 @@
             <div style="background:rgba(5, 150, 105, 0.15); border:1px solid rgba(5, 150, 105, 0.3); border-radius:8px; padding:10px 12px; color:#6ee7b7; font-size:11.5px; display:flex; align-items:center; gap:8px;">
                 <i data-icon="usb" style="flex:none; width:18px; height:18px;"></i>
                 <span><strong>Tip:</strong> If you have a USB cable attached right now, tap <strong>"Direct USB Print"</strong> instead—it works instantly in Brave!</span>
+            </div>
+
+            <div style="background:rgba(59, 130, 246, 0.12); border:1px solid rgba(59, 130, 246, 0.25); border-radius:8px; padding:10px 12px; color:#93c5fd; font-size:11.5px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <span><strong>Alternative:</strong> Paired via macOS Bluetooth Settings? Use Web Serial!</span>
+                <button type="button" class="btn sm" id="btnTrySerialPrint" style="background:#2563eb; color:#fff; border-color:#1d4ed8; font-size:11px; white-space:nowrap;">
+                    Bluetooth Serial
+                </button>
             </div>
         </div>
         <footer class="dialog-foot" style="justify-content: flex-end; gap: 8px;">

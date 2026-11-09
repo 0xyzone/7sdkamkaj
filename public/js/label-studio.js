@@ -80,6 +80,9 @@
         magnet: '<path d="M6 3v8a6 6 0 0 0 12 0V3"/><path d="M6 7h4M14 7h4"/>',
         safe: '<rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10" stroke-dasharray="2 2"/>',
         panels: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',
+        layers: '<path d="m12 2 10 5-10 5-10-5 10-5z"/><path d="m2 12 10 5 10-5"/><path d="m2 17 10 5 10-5"/>',
+        sliders: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
+        paper: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>',
         queue: '<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="8" cy="14" r="1" fill="currentColor"/><circle cx="8" cy="18" r="1" fill="currentColor"/>',
         bluetooth: '<path d="m7 7 10 10-5 5V2l5 5L7 17"/>',
         usb: '<circle cx="12" cy="18" r="2"/><circle cx="6" cy="10" r="1.5"/><rect x="16.5" y="8" width="3" height="3"/><path d="M12 16V6M12 11l-6-2M12 9l6-2M9 5h6v3H9z"/>',
@@ -469,10 +472,14 @@
     }
     function setDirty(d) {
         state.dirty = d;
-        $('#dirtyDot').classList.toggle('on', d);
+        $('#dirtyDot')?.classList.toggle('on', d);
+        const md = $('#mobileDirtyDot');
+        if (md) md.style.display = d ? 'inline-block' : 'none';
         const sb = $('#sbSaved');
-        sb.textContent = d ? 'Unsaved changes' : (state.id ? 'Saved' : 'Not saved yet');
-        sb.classList.toggle('unsaved', d);
+        if (sb) {
+            sb.textContent = d ? 'Unsaved changes' : (state.id ? 'Saved' : 'Not saved yet');
+            sb.classList.toggle('unsaved', d);
+        }
     }
 
     /* ----------------------------------------------------------------- Zoom */
@@ -497,8 +504,11 @@
         updateStatus();
     }
     function zoomFit() {
-        const aw = ws.clientWidth - 150;
-        const ah = ws.clientHeight - 150;
+        const isMobile = window.innerWidth <= 768;
+        const marginW = isMobile ? 24 : 150;
+        const marginH = isMobile ? 24 : 150;
+        const aw = ws.clientWidth - marginW;
+        const ah = ws.clientHeight - marginH;
         setZoom(Math.max(0.1, Math.min(aw / W(), ah / H())));
     }
 
@@ -570,20 +580,20 @@
     /* ---------------------------------------------------------------- Tools */
     const TOOLS = [
         { id: 'select', icon: 'select', key: 'V', tip: 'Move / Select' },
-        { id: 'hand', icon: 'hand', key: 'H', tip: 'Hand — pan (hold Space)' },
-        { id: 'zoom', icon: 'zoom', key: 'Z', tip: 'Zoom — click in, ⌥-click out' },
-        'sep',
         { id: 'text', icon: 'text', key: 'T', tip: 'Text' },
-        { id: 'pen', icon: 'pen', key: 'P', tip: 'Pen — freehand' },
-        { id: 'eraser', icon: 'eraser', key: 'E', tip: 'Eraser — paints paper white' },
-        'sep',
-        { id: 'rect', icon: 'rect', key: 'R', tip: 'Rectangle — drag' },
-        { id: 'ellipse', icon: 'ellipse', key: 'O', tip: 'Ellipse — drag' },
-        { id: 'line', icon: 'line', key: 'L', tip: 'Line — drag, ⇧ to straighten' },
-        'sep',
         { id: 'barcode', icon: 'barcode', key: 'B', tip: 'Barcode' },
         { id: 'qr', icon: 'qr', key: 'Q', tip: 'QR code' },
         { id: 'image', icon: 'image', key: 'I', tip: 'Image / logo' },
+        'sep',
+        { id: 'rect', icon: 'rect', key: 'R', tip: 'Rectangle — drag' },
+        { id: 'line', icon: 'line', key: 'L', tip: 'Line — drag, ⇧ to straighten' },
+        { id: 'ellipse', icon: 'ellipse', key: 'O', tip: 'Ellipse — drag' },
+        'sep',
+        { id: 'pen', icon: 'pen', key: 'P', tip: 'Pen — freehand' },
+        { id: 'eraser', icon: 'eraser', key: 'E', tip: 'Eraser — paints paper white' },
+        'sep',
+        { id: 'hand', icon: 'hand', key: 'H', tip: 'Hand — pan (hold Space)' },
+        { id: 'zoom', icon: 'zoom', key: 'Z', tip: 'Zoom — click in, ⌥-click out' },
     ];
     const toolDef = (id) => TOOLS.find((t) => t !== 'sep' && t.id === id);
     let spaceDown = false;
@@ -593,8 +603,14 @@
         tb.innerHTML = TOOLS.map((t) => (t === 'sep'
             ? '<div class="tool-sep"></div>'
             : `<button class="tool" data-tool="${t.id}" data-tip="${esc(t.tip)} (${t.key})">${icon(t.icon)}<span class="key">${t.key}</span></button>`)).join('')
+            + `<button class="tool mobile-layers-tool mobile-only" data-action="openLayers" title="Layers & Properties">${icon('layers')}<span class="tool-badge" id="dockLayerBadge">0</span></button>`
             + '<div class="ink-swatch" data-action="toggleInk" title="Ink colour for new objects (X to swap)"><span class="fg"></span><span class="bg"></span></div>';
         tb.addEventListener('click', (e) => {
+            const la = e.target.closest('[data-action="openLayers"]');
+            if (la) {
+                openMobileDrawer('layers');
+                return;
+            }
             const b = e.target.closest('[data-tool]');
             if (b) setTool(b.dataset.tool);
         });
@@ -634,6 +650,32 @@
             if (a && a.isEditing) a.exitEditing();
             canvas.discardActiveObject();
         }
+
+        // On mobile: tap tool to insert element directly at center
+        if (window.innerWidth <= 768) {
+            if (id === 'barcode') {
+                const center = { x: Math.max(10, Math.round(W() / 2 - 80)), y: Math.max(10, Math.round(H() / 2 - 25)) };
+                addBarcode(center);
+                return;
+            }
+            if (id === 'qr') {
+                const center = { x: Math.max(10, Math.round(W() / 2 - 40)), y: Math.max(10, Math.round(H() / 2 - 40)) };
+                addQr(center);
+                return;
+            }
+            if (id === 'image') {
+                pendingImagePoint = { x: Math.max(10, Math.round(W() / 2 - 50)), y: Math.max(10, Math.round(H() / 2 - 50)) };
+                $('#imageInput')?.click();
+                setTool('select');
+                return;
+            }
+            if (id === 'text') {
+                const center = { x: Math.max(10, Math.round(W() / 2 - 50)), y: Math.max(10, Math.round(H() / 2 - 15)) };
+                addText(center, 'New Text');
+                return;
+            }
+        }
+
         applyToolMode();
         $$('.tool').forEach((b) => b.classList.toggle('active', b.dataset.tool === id));
         renderOptions();
@@ -1267,6 +1309,12 @@
             const objs = canvas.getObjects();
             const active = new Set(canvas.getActiveObjects());
             $('#layerCount').textContent = objs.length;
+            const mlc = $('#mobileLayerCount');
+            if (mlc) mlc.textContent = objs.length;
+            const dlb = $('#dockLayerBadge');
+            if (dlb) dlb.textContent = objs.length;
+            const tlb = $('#topLayerBadge');
+            if (tlb) tlb.textContent = objs.length;
             const rows = objs.slice().reverse().map((o) => {
                 const i = objs.indexOf(o);
                 const vis = o.visible !== false;
@@ -2036,6 +2084,47 @@
         refreshPrinterStatus();
     }
 
+    /* ------------------------------------------- TSPL Binary Raster Generator */
+    function buildTsplData() {
+        const wDots = previewMono.width;
+        const hDots = previewMono.height;
+        const wBytes = Math.ceil(wDots / 8);
+        const ctx = previewMono.getContext('2d');
+        const imgData = ctx.getImageData(0, 0, wDots, hDots).data;
+
+        const header = `SIZE ${state.widthMm} mm, ${state.heightMm} mm\nGAP ${state.gapMm} mm, 0 mm\nDIRECTION ${state.direction}\nCLS\nBITMAP 0,0,${wBytes},${hDots},0,`;
+        const footer = `\nPRINT ${clamp(parseInt(state.copies, 10) || 1, 1, 500)}\n`;
+
+        const encoder = new TextEncoder();
+        const headerBytes = encoder.encode(header);
+        const footerBytes = encoder.encode(footer);
+
+        const bitmapBytes = new Uint8Array(wBytes * hDots);
+        for (let y = 0; y < hDots; y++) {
+            for (let xByte = 0; xByte < wBytes; xByte++) {
+                let byte = 0;
+                for (let bit = 0; bit < 8; bit++) {
+                    const xx = xByte * 8 + bit;
+                    if (xx < wDots) {
+                        const idx = (y * wDots + xx) * 4;
+                        if (imgData[idx] > 128) {
+                            byte |= (1 << (7 - bit));
+                        }
+                    } else {
+                        byte |= (1 << (7 - bit));
+                    }
+                }
+                bitmapBytes[y * wBytes + xByte] = byte;
+            }
+        }
+
+        const total = new Uint8Array(headerBytes.length + bitmapBytes.length + footerBytes.length);
+        total.set(headerBytes, 0);
+        total.set(bitmapBytes, headerBytes.length);
+        total.set(footerBytes, headerBytes.length + bitmapBytes.length);
+        return total;
+    }
+
     /* ------------------------------------------- Client-Side WebUSB Direct Print */
     async function doUsbPrint() {
         if (!navigator.usb) {
@@ -2111,44 +2200,7 @@
             await device.claimInterface(printerInterface.interfaceNumber);
 
             btn.textContent = 'Sending to printer…';
-
-            // Generate TSPL binary raster
-            const wDots = previewMono.width;
-            const hDots = previewMono.height;
-            const wBytes = Math.ceil(wDots / 8);
-            const ctx = previewMono.getContext('2d');
-            const imgData = ctx.getImageData(0, 0, wDots, hDots).data;
-
-            const header = `SIZE ${state.widthMm} mm, ${state.heightMm} mm\nGAP ${state.gapMm} mm, 0 mm\nDIRECTION ${state.direction}\nCLS\nBITMAP 0,0,${wBytes},${hDots},0,`;
-            const footer = `\nPRINT ${clamp(parseInt(state.copies, 10) || 1, 1, 500)}\n`;
-
-            const encoder = new TextEncoder();
-            const headerBytes = encoder.encode(header);
-            const footerBytes = encoder.encode(footer);
-
-            const bitmapBytes = new Uint8Array(wBytes * hDots);
-            for (let y = 0; y < hDots; y++) {
-                for (let xByte = 0; xByte < wBytes; xByte++) {
-                    let byte = 0;
-                    for (let bit = 0; bit < 8; bit++) {
-                        const xx = xByte * 8 + bit;
-                        if (xx < wDots) {
-                            const idx = (y * wDots + xx) * 4;
-                            if (imgData[idx] > 128) {
-                                byte |= (1 << (7 - bit));
-                            }
-                        } else {
-                            byte |= (1 << (7 - bit));
-                        }
-                    }
-                    bitmapBytes[y * wBytes + xByte] = byte;
-                }
-            }
-
-            const total = new Uint8Array(headerBytes.length + bitmapBytes.length + footerBytes.length);
-            total.set(headerBytes, 0);
-            total.set(bitmapBytes, headerBytes.length);
-            total.set(footerBytes, headerBytes.length + bitmapBytes.length);
+            const total = buildTsplData();
 
             // Transfer in chunks of 512 bytes (standard USB packet size)
             const CHUNK_SIZE = 512;
@@ -2175,6 +2227,19 @@
     }
 
     /* ------------------------------------------- Wireless Web Bluetooth Print */
+    const THERMAL_BLE_SERVICES = [
+        '0000ffe0-0000-1000-8000-00805f9b34fb', // Deli & HM-10 UART Service
+        '0000ff00-0000-1000-8000-00805f9b34fb', // Deli secondary UART
+        '49535343-fe7d-4ae5-8fa9-9fafd205e455', // ISSC transparent UART (Deli/Xprinter)
+        '6e400001-b5a3-f393-e0a9-e50e24dcca9e', // Nordic Semiconductor NUS
+        '0000fee7-0000-1000-8000-00805f9b34fb', // Tencent WeChat IoT BLE thermal
+        '0000ae00-0000-1000-8000-00805f9b34fb', // JL BLE UART
+        '0000af00-0000-1000-8000-00805f9b34fb', // JL alternate
+        '000018f0-0000-1000-8000-00805f9b34fb', // Standard Print Service
+        '0000fff0-0000-1000-8000-00805f9b34fb', // General POS/Label BLE
+        'e7810a71-73ae-499d-8c15-faa9aef0c3f2', // Vendor BLE
+    ];
+
     async function doBluetoothPrint() {
         if (!navigator.bluetooth) {
             const dlg = $('#bluetoothHelpDialog');
@@ -2192,31 +2257,10 @@
         btn.textContent = 'Searching…';
 
         try {
-            // Request Bluetooth device with standard printer services or accept all
+            // Request Bluetooth device accepting all nearby devices with thermal BLE services
             const device = await navigator.bluetooth.requestDevice({
-                filters: [
-                    { namePrefix: 'Deli' },
-                    { namePrefix: '886' },
-                    { namePrefix: 'Printer' },
-                ],
-                optionalServices: [
-                    '000018f0-0000-1000-8000-00805f9b34fb', // Standard Print service
-                    '49535343-fe7d-4ae5-8fa9-9fafd205e455', // ISSC transparent UART
-                    '0000e0ff-0000-1000-8000-00805f9b34fb',
-                    '0000ff00-0000-1000-8000-00805f9b34fb',
-                ],
-                acceptAllDevices: false,
-            }).catch(async () => {
-                // Fallback: prompt for any paired Bluetooth device
-                return await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
-                    optionalServices: [
-                        '000018f0-0000-1000-8000-00805f9b34fb',
-                        '49535343-fe7d-4ae5-8fa9-9fafd205e455',
-                        '0000e0ff-0000-1000-8000-00805f9b34fb',
-                        '0000ff00-0000-1000-8000-00805f9b34fb',
-                    ],
-                });
+                acceptAllDevices: true,
+                optionalServices: THERMAL_BLE_SERVICES,
             });
 
             if (!device) {
@@ -2228,65 +2272,48 @@
             btn.textContent = 'Connecting…';
             const server = await device.gatt.connect();
 
-            // Find first writable characteristic
+            // Find first writable characteristic across known and discovered services
             let writeChar = null;
-            const services = await server.getPrimaryServices().catch(() => []);
-            for (const s of services) {
-                const chars = await s.getCharacteristics().catch(() => []);
-                for (const c of chars) {
-                    if (c.properties.write || c.properties.writeWithoutResponse) {
-                        writeChar = c;
-                        break;
+            for (const svcUuid of THERMAL_BLE_SERVICES) {
+                try {
+                    const svc = await server.getPrimaryService(svcUuid);
+                    if (svc) {
+                        const chars = await svc.getCharacteristics();
+                        for (const c of chars) {
+                            if (c.properties.write || c.properties.writeWithoutResponse) {
+                                writeChar = c;
+                                break;
+                            }
+                        }
                     }
-                }
+                } catch (_) {}
                 if (writeChar) break;
             }
 
             if (!writeChar) {
-                throw new Error('Could not find a writable Bluetooth printing characteristic on ' + device.name);
+                try {
+                    const services = await server.getPrimaryServices().catch(() => []);
+                    for (const s of services) {
+                        const chars = await s.getCharacteristics().catch(() => []);
+                        for (const c of chars) {
+                            if (c.properties.write || c.properties.writeWithoutResponse) {
+                                writeChar = c;
+                                break;
+                            }
+                        }
+                        if (writeChar) break;
+                    }
+                } catch (_) {}
+            }
+
+            if (!writeChar) {
+                throw new Error('Connected to ' + (device.name || 'Bluetooth device') + ', but could not find a writable Bluetooth printing service. Ensure printer is in BLE mode or try Bluetooth Serial.');
             }
 
             btn.textContent = 'Sending dots…';
+            const total = buildTsplData();
 
-            // Generate TSPL raster binary
-            const wDots = previewMono.width;
-            const hDots = previewMono.height;
-            const wBytes = Math.ceil(wDots / 8);
-            const ctx = previewMono.getContext('2d');
-            const imgData = ctx.getImageData(0, 0, wDots, hDots).data;
-
-            const header = `SIZE ${state.widthMm} mm, ${state.heightMm} mm\nGAP ${state.gapMm} mm, 0 mm\nDIRECTION ${state.direction}\nCLS\nBITMAP 0,0,${wBytes},${hDots},0,`;
-            const footer = `\nPRINT ${clamp(parseInt(state.copies, 10) || 1, 1, 500)}\n`;
-
-            const encoder = new TextEncoder();
-            const headerBytes = encoder.encode(header);
-            const footerBytes = encoder.encode(footer);
-
-            const bitmapBytes = new Uint8Array(wBytes * hDots);
-            for (let y = 0; y < hDots; y++) {
-                for (let xByte = 0; xByte < wBytes; xByte++) {
-                    let byte = 0;
-                    for (let bit = 0; bit < 8; bit++) {
-                        const xx = xByte * 8 + bit;
-                        if (xx < wDots) {
-                            const idx = (y * wDots + xx) * 4;
-                            if (imgData[idx] > 128) {
-                                byte |= (1 << (7 - bit));
-                            }
-                        } else {
-                            byte |= (1 << (7 - bit));
-                        }
-                    }
-                    bitmapBytes[y * wBytes + xByte] = byte;
-                }
-            }
-
-            const total = new Uint8Array(headerBytes.length + bitmapBytes.length + footerBytes.length);
-            total.set(headerBytes, 0);
-            total.set(bitmapBytes, headerBytes.length);
-            total.set(footerBytes, headerBytes.length + bitmapBytes.length);
-
-            // Chunk transfer over Bluetooth BLE MTU (typically 128 to 512 bytes)
+            // Chunk transfer over Bluetooth BLE MTU (120 bytes with 15ms throttle)
             const CHUNK_SIZE = 120;
             for (let offset = 0; offset < total.length; offset += CHUNK_SIZE) {
                 const chunk = total.slice(offset, offset + CHUNK_SIZE);
@@ -2295,7 +2322,6 @@
                 } else {
                     await writeChar.writeValue(chunk);
                 }
-                // Short throttle to prevent buffer overrun on thermal microcontroller
                 await new Promise((r) => setTimeout(r, 15));
             }
 
@@ -2303,10 +2329,38 @@
             $('#printDialog').close();
             setTimeout(() => device.gatt?.disconnect(), 2000);
         } catch (err) {
-            toast('Bluetooth error', err.message || 'Connection cancelled', 'error');
+            if (err.name !== 'NotFoundError') {
+                toast('Bluetooth error', err.message || 'Connection cancelled', 'error');
+            }
         } finally {
             btn.disabled = false;
             btn.innerHTML = `${icon('bluetooth')} Bluetooth Print`;
+        }
+    }
+
+    /* ------------------------------------------- Bluetooth Serial (SPP) Fallback */
+    async function doSerialPrint() {
+        if (!navigator.serial) {
+            toast('Web Serial Not Supported', 'Web Serial is supported in Brave, Chrome, and Edge on Mac/Windows. Pair your printer in macOS Bluetooth settings first.', 'error');
+            return;
+        }
+        if (!previewMono) return;
+
+        try {
+            const port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 9600 });
+            const writer = port.writable.getWriter();
+            const total = buildTsplData();
+            await writer.write(total);
+            writer.releaseLock();
+            await port.close();
+            toast('Bluetooth Serial Print Dispatched', 'Label sent to serial port!', 'success');
+            $('#bluetoothHelpDialog')?.close();
+            $('#printDialog')?.close();
+        } catch (err) {
+            if (err.name !== 'NotFoundError') {
+                toast('Serial Error', err.message || 'Serial communication failed', 'error');
+            }
         }
     }
 
@@ -2338,6 +2392,19 @@
         $('#btnDoPrint').addEventListener('click', doPrint);
         $('#btnBluetoothPrint')?.addEventListener('click', doBluetoothPrint);
         $('#btnUsbPrint')?.addEventListener('click', doUsbPrint);
+        $('#btnTrySerialPrint')?.addEventListener('click', doSerialPrint);
+
+        // Mobile panel drawer toggle & backdrop
+        $('#btnTogglePanels')?.addEventListener('click', () => {
+            const p = $('#panels');
+            const bd = $('#panelsBackdrop');
+            p?.classList.toggle('open');
+            bd?.classList.toggle('active', p?.classList.contains('open'));
+        });
+        $('#panelsBackdrop')?.addEventListener('click', () => {
+            $('#panels')?.classList.remove('open');
+            $('#panelsBackdrop')?.classList.remove('active');
+        });
 
         // Copy button in Bluetooth helper dialog
         const copyBtn = $('#btnCopyFlagUrl');
@@ -2452,7 +2519,18 @@
         preset: (el) => setSize(el.dataset.w, el.dataset.h),
         toggleInk: () => { state.ink = state.ink === '#000000' ? '#ffffff' : '#000000'; renderInk(); applyToolMode(); },
         toggleOpt: (el) => { const k = el.dataset.opt; state[k] = !state[k]; savePrefs(); renderOptions(); canvas.requestRenderAll(); },
-        togglePanels: () => $('#panels').classList.toggle('open'),
+        togglePanels: () => {
+            const p = $('#panels');
+            const bd = $('#panelsBackdrop');
+            p?.classList.toggle('open');
+            bd?.classList.toggle('active', p?.classList.contains('open'));
+        },
+        openLayers: () => openMobileDrawer('layers'),
+        openProperties: () => openMobileDrawer('properties'),
+        closePanels: () => {
+            $('#panels')?.classList.remove('open');
+            $('#panelsBackdrop')?.classList.remove('active');
+        },
         fitImage: () => {
             const o = canvas.getActiveObject();
             if (!o) return;
@@ -2475,7 +2553,38 @@
         ungroup: () => ungroup(canvas.getActiveObject()),
         groupSelection,
     };
+
+    function openMobileDrawer(tab = 'layers') {
+        const p = $('#panels');
+        const bd = $('#panelsBackdrop');
+        if (!p) return;
+        p.classList.add('open');
+        bd?.classList.add('active');
+        setDrawerTab(tab);
+    }
+
+    function setDrawerTab(tab) {
+        const p = $('#panels');
+        if (!p) return;
+        p.dataset.activeTab = tab;
+        $$('.md-tab').forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.drawerTab === tab);
+        });
+    }
+
     document.addEventListener('click', (e) => {
+        const tabBtn = e.target.closest('[data-drawer-tab]');
+        if (tabBtn) {
+            e.preventDefault();
+            setDrawerTab(tabBtn.dataset.drawerTab);
+            return;
+        }
+        if (e.target.closest('#btnDrawerClose') || e.target.closest('#panelsBackdrop')) {
+            e.preventDefault();
+            $('#panels')?.classList.remove('open');
+            $('#panelsBackdrop')?.classList.remove('active');
+            return;
+        }
         const a = e.target.closest('[data-action]');
         if (!a || !actions[a.dataset.action]) return;
         e.preventDefault();
@@ -2652,7 +2761,10 @@
 
         refreshPrinterStatus();
         setInterval(refreshPrinterStatus, 15000);
-        window.addEventListener('resize', debounce(drawRulers, 150));
+        window.addEventListener('resize', debounce(() => {
+            drawRulers();
+            if (window.innerWidth <= 768) zoomFit();
+        }, 150));
     }
 
     boot();

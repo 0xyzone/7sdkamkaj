@@ -82,4 +82,4 @@ Every AI assistant or agent working on this codebase MUST strictly adhere to the
   - Resources: `App\Filament\Resources\Printers\PrinterResource` and `App\Filament\Resources\LabelTemplates\LabelTemplateResource`
   - Category: `Printing & Labels` navigation group
   - Features: Automatic local CUPS printer detection (e.g. Deli E886BW), raw TCP/IP socket printing, live connection status checking (Idle/Ready, Busy, Offline), interactive visual label designer with tools (Select, Pen, Eraser, Text, Barcodes, QR Codes, Shapes), standard label size presets (50x30, 50x70, 40x30, 60x40, 80x50, 100x150) and custom size constraints (max 108mm nozzle width), and direct TSPL raw printing dispatch with variable interpolation (`{{brand}}`, `{{item_name}}`, `{{size}}`, `{{price}}`, `{{barcode}}`).
-- **Current Version**: `1.13.0`
+- **Current Version**: `1.14.0`

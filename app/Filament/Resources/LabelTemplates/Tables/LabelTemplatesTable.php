@@ -47,16 +47,25 @@ class LabelTemplatesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
-                Action::make('open_in_studio')
-                    ->label('Open in Studio')
-                    ->icon('heroicon-o-paint-brush')
-                    ->color('primary')
-                    ->url(fn (LabelTemplate $record) => url("/label-studio/{$record->id}")),
-
-                Action::make('print_in_studio')
+                Action::make('quick_print')
                     ->label('Print')
                     ->icon('heroicon-o-printer')
                     ->color('danger')
+                    ->slideOver()
+                    ->modalWidth('4xl')
+                    ->modalHeading(fn (LabelTemplate $record) => "Print Label: {$record->name}")
+                    ->modalDescription(fn (LabelTemplate $record) => "{$record->width_mm}mm × {$record->height_mm}mm (Gap {$record->gap_mm}mm) — Real-time 1-bit thermal preview")
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(false)
+                    ->modalContent(fn (LabelTemplate $record) => view('filament.label-templates.quick-print-modal', [
+                        'template' => $record,
+                        'printers' => \App\Models\Printer::where('is_active', true)->get(),
+                    ])),
+
+                Action::make('open_in_studio')
+                    ->label('Studio')
+                    ->icon('heroicon-o-paint-brush')
+                    ->color('primary')
                     ->url(fn (LabelTemplate $record) => url("/label-studio/{$record->id}")),
             ])
             ->toolbarActions([

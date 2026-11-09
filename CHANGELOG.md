@@ -4,6 +4,17 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-11-09
+
+### Added
+- **Mobile Screen Optimization for Label Studio**: Overhauled Label Studio for mobile screens with a responsive top bar (back navigation, template dropdown, Undo/Redo, Save with dirty indicator, and prominent Print button), front-loaded bottom tool dock (Move, Text, Barcode, QR, Image, Shapes, Pen, Layers), and auto-fitting canvas without clutter.
+- **Dedicated Mobile Tabbed Drawer for Layers & Properties**: Introduced a segmented drawer header with dedicated tabs (`[Layers (5)] [Properties] [Paper] [Assets]`), allowing instant 1-tap inspection of the complete layer stack, visibility toggles, lock states, stacking order, duplicate, and delete actions directly on mobile devices.
+- **One-Tap Mobile Element Creation**: Tapping Barcode, QR Code, Image, or Text directly places elements at the center of the canvas on mobile without requiring secondary canvas taps.
+- **Resource Page Custom Print Slide-Over Modal**: Clicking the "Print" action directly on the `/label-templates` resource table now opens an in-page custom slide-over dialog featuring a real-time 1-bit thermal canvas preview, dynamic variables form (only showing variables used in that design), and direct USB, Bluetooth, and server spool printing without navigating away.
+- **Enhanced Deli Bluetooth Thermal Printing**: Integrated complete Deli E886BW BLE transparent UART UUIDs (`0000ffe0`, `0000ff00`, `49535343`, `6e400001`, `0000fee7`), registered `acceptAllDevices: true` for universal discovery, throttled MTU packet chunks, and added a paired Bluetooth Serial SPP fallback (`navigator.serial`).
+
+---
+
 ## [1.13.0] - 2026-11-09
 
 ### Added

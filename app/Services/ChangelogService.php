@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.13.0';
+    public const CURRENT_VERSION = '1.14.0';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,24 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.14.0',
+                'date' => '2026-11-09',
+                'title' => 'Mobile Screen Optimization, In-Page Quick Print Modal & Deli Bluetooth Printing',
+                'type' => 'minor',
+                'badge' => 'Feature',
+                'badge_color' => 'primary',
+                'highlights' => 'Complete mobile workstation overhaul for Label Studio featuring a tabbed drawer for instant Layers and Properties access, upfront creation tools (Text, Barcode, QR, Image) with 1-tap placement, zero-overlap mobile topbar, in-page slide-over print dialog on the Label Templates resource page with real-time preview, and enhanced Deli E886BW Bluetooth printing support with transparent BLE UART discovery and Bluetooth Serial SPP fallback.',
+                'changes' => [
+                    'added' => [
+                        'Mobile tabbed drawer: dedicated Layers tab with live layer count badge, visibility toggles, lock, reorder, duplicate and delete.',
+                        'Front-loaded mobile dock: Move, Text, Barcode, QR, Image, Shapes, Pen, and Layers buttons immediately accessible without scrolling.',
+                        'One-tap mobile creation: tapping Barcode, QR, Image, or Text directly places elements at canvas center on mobile screens.',
+                        'Resource page in-page print modal: clicking Print in /label-templates opens a slide-over modal with live 1-bit WYSIWYG preview, dynamic variables form, and direct WebUSB, Bluetooth, and server spool printing without navigating away.',
+                        'Enhanced Deli Bluetooth printing: added standard Deli BLE service UUIDs (0000ffe0, 0000ff00, 49535343, 6e400001, 0000fee7) with acceptAllDevices discovery and Web Serial SPP fallback.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.13.0',
                 'date' => '2026-11-09',
