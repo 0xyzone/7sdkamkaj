@@ -79,6 +79,7 @@
         magnet: '<path d="M6 3v8a6 6 0 0 0 12 0V3"/><path d="M6 7h4M14 7h4"/>',
         safe: '<rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10" stroke-dasharray="2 2"/>',
         panels: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',
+        queue: '<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="8" cy="14" r="1" fill="currentColor"/><circle cx="8" cy="18" r="1" fill="currentColor"/>',
     };
     const svg = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n] || ''}</svg>`;
     const icon = (n) => `<i data-icon="${n}">${svg(n)}</i>`;
@@ -1286,7 +1287,101 @@
         } catch (e) {
             pills.forEach((p) => setPill(p, 'gray', `${name} · status unavailable`));
         }
+
+        // Also update queue badge count
+        if (CFG.urls.queue) {
+            try {
+                const qr = await fetch(CFG.urls.queue, { headers: { Accept: 'application/json' } });
+                const qj = await qr.json();
+                const count = (qj.jobs || []).length;
+                const badge = $('#queueBadge');
+                if (badge) {
+                    badge.textContent = count;
+                    badge.style.display = count > 0 ? 'inline-flex' : 'none';
+                }
+            } catch (e) { /* ignore */ }
+        }
     }
+
+    async function openQueueModal() {
+        const dlg = $('#queueDialog');
+        if (!dlg) return;
+        dlg.showModal();
+        await refreshQueueModal();
+    }
+    window.refreshQueueModal = async function() {
+        const list = $('#queueList');
+        const countLabel = $('#queueCountLabel');
+        const btnCancelAll = $('#btnCancelAllJobs');
+        list.innerHTML = '<div class="empty">Checking print queue…</div>';
+
+        try {
+            const r = await fetch(CFG.urls.queue, { headers: { Accept: 'application/json' } });
+            const j = await r.json();
+            const jobs = j.jobs || [];
+
+            countLabel.textContent = `${jobs.length} active job${jobs.length === 1 ? '' : 's'}`;
+            btnCancelAll.style.display = jobs.length > 0 ? 'inline-flex' : 'none';
+
+            if (!jobs.length) {
+                list.innerHTML = `<div class="empty">
+                    <div style="font-size:24px; margin-bottom:8px;">✓</div>
+                    <b>Queue is completely empty</b><br>
+                    No jobs waiting or spooling on thermal printers.
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = jobs.map((job) => `
+                <div class="q-row">
+                    <div class="q-info">
+                        <div class="q-head">
+                            <span class="q-id">${esc(job.id)}</span>
+                            <span>${esc(job.printer)}</span>
+                        </div>
+                        <div class="q-sub">Size: ${esc(job.size)} · User: ${esc(job.user)} · ${esc(job.created_at)}</div>
+                    </div>
+                    <button type="button" class="btn sm danger" data-cancel-job="${esc(job.id)}" title="Cancel this job">
+                        ${icon('trash')} Cancel
+                    </button>
+                </div>
+            `).join('');
+
+            // Bind individual cancel buttons
+            list.querySelectorAll('[data-cancel-job]').forEach((btn) => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.dataset.cancelJob;
+                    btn.disabled = true;
+                    btn.textContent = 'Cancelling…';
+                    const res = await api(CFG.urls.cancelQueue, { job_id: id });
+                    if (res.success) {
+                        toast('Job cancelled', res.message, 'success');
+                    } else {
+                        toast('Failed to cancel', res.message, 'error');
+                    }
+                    await refreshQueueModal();
+                    await refreshPrinterStatus();
+                });
+            });
+
+            // Hydrate icons
+            list.querySelectorAll('i[data-icon]').forEach((el) => { if (!el.firstChild) el.innerHTML = svg(el.dataset.icon); });
+        } catch (e) {
+            list.innerHTML = `<div class="empty" style="color:var(--bad);">Error loading queue: ${esc(e.message)}</div>`;
+        }
+    };
+
+    $('#btnCancelAllJobs')?.addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to terminate ALL pending print jobs across all queues?')) return;
+        const res = await api(CFG.urls.cancelQueue, { all: true });
+        if (res.success) {
+            toast('Queue cleared', res.message, 'success');
+        } else {
+            toast('Failed', res.message, 'error');
+        }
+        await refreshQueueModal();
+        await refreshPrinterStatus();
+    });
 
     /* ---------------------------------------------- WYSIWYG print pipeline */
     async function renderLabelCanvas() {
@@ -1493,6 +1588,7 @@
         save: () => save(false),
         saveAs: () => save(true),
         undo, redo,
+        openQueue: openQueueModal,
         preview: openPrint,
         zoomIn: () => setZoom(state.zoom * 1.25),
         zoomOut: () => setZoom(state.zoom / 1.25),

@@ -4,6 +4,15 @@ All notable changes to the **7 Series Kamkaj** enterprise operations platform ar
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.3] - 2026-11-09
+
+### Added
+- **Top Bar Print Queue Trigger & Modal**: Added an active print queue monitor directly in the topbar (`PanelsRenderHook::GLOBAL_SEARCH_AFTER`) and Label Studio menubar.
+- **Real-Time Job Monitoring & Terminate Actions**: Live polling every 5s displaying pending and active jobs (job ID, spooler queue, file size, user, and timestamp).
+- **Single & Bulk Cancellation**: Terminate individual stuck jobs (`cancel <id>`) or execute bulk queue clearing (`cancel -a`) directly from the modal slide-over with confirmation safeguards.
+
+---
+
 ## [1.9.2] - 2026-11-09
 
 ### Added

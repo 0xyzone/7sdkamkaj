@@ -68,6 +68,10 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->globalSearchFieldSuffix(fn () => '⌘K')
             ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+                fn () => view('filament.components.topbar-print-queue'),
+            )
+            ->renderHook(
                 PanelsRenderHook::HEAD_START,
                 fn () => view('filament.components.pwa-head'),
             )

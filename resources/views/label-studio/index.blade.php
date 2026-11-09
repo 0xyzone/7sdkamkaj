@@ -38,6 +38,9 @@
             <span id="dirtyDot" class="dirty-dot" title="Unsaved changes"></span>
         </div>
         <div class="menu-right">
+            <button class="mbtn" data-action="openQueue" id="btnQueue" title="View print queue & cancel jobs">
+                <i data-icon="queue"></i><span>Queue</span><span id="queueBadge" class="q-badge" style="display:none">0</span>
+            </button>
             <div class="printer-pill" id="printerPill" title="Printer status">
                 <span class="dot"></span><span class="txt">Checking…</span>
             </div>
@@ -104,6 +107,28 @@
         <span class="sb-item" id="sbSaved">Saved</span>
     </footer>
 </div>
+
+{{-- ===== Print queue dialog ===== --}}
+<dialog id="queueDialog" class="dialog" style="width: min(640px, 94vw);">
+    <div class="dialog-inner">
+        <header class="dialog-head">
+            <h3>Print Queue <small id="queueCountLabel">0 active jobs</small></h3>
+            <button type="button" class="x" onclick="document.getElementById('queueDialog').close()" title="Close">×</button>
+        </header>
+        <div class="dialog-body" style="display:flex; flex-direction:column; gap:12px; max-height:420px; overflow-y:auto; padding:16px;">
+            <div id="queueList"></div>
+        </div>
+        <footer class="dialog-foot" style="justify-content: space-between;">
+            <button type="button" class="btn danger" id="btnCancelAllJobs" style="display:none;">
+                <i data-icon="trash"></i> Terminate All Jobs
+            </button>
+            <div style="margin-left:auto; display:flex; gap:8px;">
+                <button type="button" class="btn" onclick="refreshQueueModal()">Refresh</button>
+                <button type="button" class="btn" onclick="document.getElementById('queueDialog').close()">Close</button>
+            </div>
+        </footer>
+    </div>
+</dialog>
 
 {{-- ===== Print preview dialog ===== --}}
 <dialog id="printDialog" class="dialog">

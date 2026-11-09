@@ -39,6 +39,8 @@ class LabelStudioController extends Controller
                 'urls' => [
                     'save' => route('label-studio.save'),
                     'print' => route('label-studio.print'),
+                    'queue' => route('label-studio.queue'),
+                    'cancelQueue' => route('label-studio.queue.cancel'),
                     'status' => url('/label-studio/printers/__ID__/status'),
                     'studio' => url('/label-studio'),
                     'panel' => url('/label-templates'),
@@ -168,5 +170,29 @@ class LabelStudioController extends Controller
     public function printerStatus(Printer $printer): JsonResponse
     {
         return response()->json($printer->getStatus());
+    }
+
+    /**
+     * Get active print jobs in queue.
+     */
+    public function queue(): JsonResponse
+    {
+        return response()->json([
+            'jobs' => PrintService::getPrintQueue(),
+        ]);
+    }
+
+    /**
+     * Terminate or cancel print jobs.
+     */
+    public function cancelJob(Request $request): JsonResponse
+    {
+        $jobId = $request->input('job_id');
+        $all = $request->boolean('all');
+
+        $result = PrintService::cancelPrintJob($jobId, $all);
+        $result['jobs'] = PrintService::getPrintQueue();
+
+        return response()->json($result);
     }
 }

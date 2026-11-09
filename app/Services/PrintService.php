@@ -27,6 +27,98 @@ class PrintService
     }
 
     /**
+     * Get active print jobs across all or a specific printer queue.
+     * Returns an array of job records with id, printer, user, size, date, status.
+     */
+    public static function getPrintQueue(?string $printerQueue = null): array
+    {
+        $cmd = 'lpstat -o ' . ($printerQueue ? escapeshellarg($printerQueue) : '') . ' 2>&1';
+        $output = @shell_exec($cmd);
+
+        if (! $output || str_contains(strtolower($output), 'no system default')) {
+            return [];
+        }
+
+        $jobs = [];
+        $lines = explode("\n", trim($output));
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || str_contains($line, 'No destinations added')) {
+                continue;
+            }
+
+            // Standard CUPS output format:
+            // Deli_886BW-58           oxyzone           1024   Mon Nov  9 13:40:27 2026
+            if (preg_match('/^([^\s]+)\s+([^\s]+)\s+([0-9]+)\s+(.+)$/', $line, $matches)) {
+                $jobId = $matches[1];
+                $user = $matches[2];
+                $bytes = (int) $matches[3];
+                $time = $matches[4];
+
+                $parts = explode('-', $jobId);
+                $printerName = $parts[0] ?? 'Unknown';
+
+                $sizeFormatted = $bytes >= 1024 * 1024
+                    ? number_format($bytes / (1024 * 1024), 1) . ' MB'
+                    : number_format($bytes / 1024, 1) . ' KB';
+
+                $jobs[] = [
+                    'id' => $jobId,
+                    'printer' => $printerName,
+                    'user' => $user,
+                    'bytes' => $bytes,
+                    'size' => $sizeFormatted,
+                    'created_at' => $time,
+                ];
+            }
+        }
+
+        return $jobs;
+    }
+
+    /**
+     * Cancel a specific print job or all jobs on a printer queue.
+     */
+    public static function cancelPrintJob(?string $jobId = null, bool $all = false): array
+    {
+        if ($all) {
+            $cmd = 'cancel -a 2>&1';
+            $output = @shell_exec($cmd);
+
+            return [
+                'success' => true,
+                'message' => 'All pending print jobs have been terminated.',
+                'output' => trim($output ?? ''),
+            ];
+        }
+
+        if (! $jobId) {
+            return [
+                'success' => false,
+                'message' => 'No job ID specified to cancel.',
+            ];
+        }
+
+        $cmd = 'cancel ' . escapeshellarg($jobId) . ' 2>&1';
+        $output = @shell_exec($cmd);
+
+        if ($output && str_contains(strtolower($output), 'error')) {
+            return [
+                'success' => false,
+                'message' => "Failed to cancel job {$jobId}: " . trim($output),
+                'output' => trim($output),
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => "Job {$jobId} was successfully cancelled.",
+            'output' => trim($output ?? ''),
+        ];
+    }
+
+    /**
      * Convert an image binary string (or data URI) into 1-bit monochrome TSPL BITMAP command.
      * This provides WYSIWYG printing for any graphics, custom fonts, logos, icons, and text drawn on the canvas.
      */

@@ -15,6 +15,8 @@ Route::middleware(['web'])->group(function () {
     Route::middleware(['auth', EnsureUserIsActive::class])->prefix('label-studio')->name('label-studio.')->group(function () {
         Route::post('/save', [LabelStudioController::class, 'save'])->name('save');
         Route::post('/print', [LabelStudioController::class, 'print'])->name('print');
+        Route::get('/queue', [LabelStudioController::class, 'queue'])->name('queue');
+        Route::post('/queue/cancel', [LabelStudioController::class, 'cancelJob'])->name('queue.cancel');
         Route::get('/printers/{printer}/status', [LabelStudioController::class, 'printerStatus'])->name('printer-status');
         Route::get('/{id?}', [LabelStudioController::class, 'index'])->whereNumber('id')->name('index');
     });
