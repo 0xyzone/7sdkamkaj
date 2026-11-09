@@ -1653,7 +1653,7 @@
     /* ------------------------------------------- Wireless Web Bluetooth Print */
     async function doBluetoothPrint() {
         if (!navigator.bluetooth) {
-            toast('Web Bluetooth not supported', 'Please use Chrome, Edge, or Arc browser on desktop/Android with Bluetooth turned on.', 'error');
+            toast('Brave Shields / Flag Required', 'In Brave, open a new tab to: brave://flags/#enable-web-bluetooth and set to "Enabled", then restart Brave. Or allow Bluetooth in brave://settings/content/bluetooth.', 'error');
             return;
         }
         if (!previewMono) return;
