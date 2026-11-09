@@ -108,6 +108,53 @@
     </footer>
 </div>
 
+{{-- ===== Bluetooth Help dialog for Brave ===== --}}
+<dialog id="bluetoothHelpDialog" class="dialog" style="width: min(520px, 94vw);">
+    <div class="dialog-inner">
+        <header class="dialog-head" style="border-bottom: 1px solid var(--border);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; background:#2563eb; color:#fff;">
+                    <i data-icon="bluetooth"></i>
+                </span>
+                <h3 style="margin: 0; font-size: 15px; font-weight: 700;">Enable Web Bluetooth in Brave</h3>
+            </div>
+            <button type="button" class="x" onclick="document.getElementById('bluetoothHelpDialog').close()" title="Close">×</button>
+        </header>
+        <div class="dialog-body" style="display:flex; flex-direction:column; gap:14px; padding:20px; font-size:12.5px; line-height:1.6;">
+            <p style="margin:0; color:#e2e8f0;">
+                Brave blocks website Bluetooth access by default for privacy. To print wirelessly to your <strong>Deli E886BW</strong>, enable the flag once:
+            </p>
+
+            <div style="background:var(--field); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <span style="font-size:11px; font-weight:600; text-transform:uppercase; color:var(--muted); letter-spacing:0.05em;">Step 1: Open Flag URL</span>
+                    <button type="button" class="btn sm" id="btnCopyFlagUrl" style="font-size:11px;">
+                        Copy URL
+                    </button>
+                </div>
+                <input type="text" id="flagUrlInput" value="brave://flags/#enable-web-bluetooth" readonly style="font-family:'Roboto Mono',monospace; font-size:12px; font-weight:600; color:#93c5fd; background:#0b0f19; border:1px solid #1e293b; border-radius:6px; padding:8px 10px; width:100%; cursor:pointer;" onclick="this.select()">
+            </div>
+
+            <ol style="margin:0; padding-left:18px; color:#cbd5e1; display:flex; flex-direction:column; gap:6px;">
+                <li>Paste into a <strong>new tab</strong> in Brave.</li>
+                <li>Change <strong>Web Bluetooth</strong> from <span style="background:#334155; padding:1px 6px; border-radius:4px; font-size:11px;">Default</span> to <strong style="color:#22c55e;">Enabled</strong>.</li>
+                <li>Click the blue <strong>Relaunch</strong> button at the bottom of Brave.</li>
+            </ol>
+
+            <div style="background:rgba(5, 150, 105, 0.15); border:1px solid rgba(5, 150, 105, 0.3); border-radius:8px; padding:10px 12px; color:#6ee7b7; font-size:11.5px; display:flex; align-items:center; gap:8px;">
+                <i data-icon="usb" style="flex:none; width:18px; height:18px;"></i>
+                <span><strong>Tip:</strong> If you have a USB cable attached right now, tap <strong>"Direct USB Print"</strong> instead—it works instantly in Brave!</span>
+            </div>
+        </div>
+        <footer class="dialog-foot" style="justify-content: flex-end; gap: 8px;">
+            <button type="button" class="btn" onclick="document.getElementById('bluetoothHelpDialog').close()">Close</button>
+            <button type="button" class="btn primary" id="btnCopiedAndClose" style="background:#2563eb; border-color:#1d4ed8;">
+                Copy URL &amp; Done
+            </button>
+        </footer>
+    </div>
+</dialog>
+
 {{-- ===== Print queue dialog ===== --}}
 <dialog id="queueDialog" class="dialog" style="width: min(640px, 94vw);">
     <div class="dialog-inner">

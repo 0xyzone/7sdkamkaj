@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ChangelogService
 {
-    public const CURRENT_VERSION = '1.9.1';
+    public const CURRENT_VERSION = '1.9.9';
 
     public static function getCurrentVersion(): string
     {
@@ -17,6 +17,22 @@ class ChangelogService
     public static function getReleases(): array
     {
         return [
+            [
+                'version' => '1.9.9',
+                'date' => '2026-11-09',
+                'title' => 'Web Bluetooth Quick Activation Dialog for Brave Browser',
+                'type' => 'patch',
+                'badge' => 'Enhancement',
+                'badge_color' => 'info',
+                'highlights' => 'Added a dedicated helper modal dialog in Label Studio when clicking Bluetooth Print in Brave browser. Provides step-by-step instructions and a 1-click URL copy button for brave://flags/#enable-web-bluetooth to enable seamless wireless thermal label printing.',
+                'changes' => [
+                    'added' => [
+                        'Interactive helper popup dialog `#bluetoothHelpDialog` triggered on Bluetooth Print in Brave.',
+                        '1-click "Copy URL" button and auto-select for `brave://flags/#enable-web-bluetooth`.',
+                        'Quick tip highlighting instant Direct USB Print alternative.',
+                    ],
+                ],
+            ],
             [
                 'version' => '1.9.1',
                 'date' => '2026-11-09',

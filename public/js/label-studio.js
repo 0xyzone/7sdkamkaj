@@ -1653,7 +1653,12 @@
     /* ------------------------------------------- Wireless Web Bluetooth Print */
     async function doBluetoothPrint() {
         if (!navigator.bluetooth) {
-            toast('Brave Shields / Flag Required', 'In Brave, open a new tab to: brave://flags/#enable-web-bluetooth and set to "Enabled", then restart Brave. Or allow Bluetooth in brave://settings/content/bluetooth.', 'error');
+            const dlg = $('#bluetoothHelpDialog');
+            if (dlg) {
+                dlg.showModal();
+            } else {
+                toast('Brave Flag Required', 'Open brave://flags/#enable-web-bluetooth in a new tab, set to Enabled, and restart Brave.', 'error');
+            }
             return;
         }
         if (!previewMono) return;
@@ -1789,6 +1794,24 @@
         $('#btnDoPrint').addEventListener('click', doPrint);
         $('#btnBluetoothPrint')?.addEventListener('click', doBluetoothPrint);
         $('#btnUsbPrint')?.addEventListener('click', doUsbPrint);
+
+        // Copy button in Bluetooth helper dialog
+        const copyBtn = $('#btnCopyFlagUrl');
+        const copiedBtn = $('#btnCopiedAndClose');
+        const input = $('#flagUrlInput');
+        const doCopy = () => {
+            if (input) {
+                input.select();
+                navigator.clipboard?.writeText(input.value);
+                toast('URL Copied!', 'Paste brave://flags/#enable-web-bluetooth into a new tab in Brave.', 'success');
+            }
+        };
+        copyBtn?.addEventListener('click', doCopy);
+        input?.addEventListener('click', doCopy);
+        copiedBtn?.addEventListener('click', () => {
+            doCopy();
+            $('#bluetoothHelpDialog')?.close();
+        });
     }
 
     /* --------------------------------------------------------- Save / open */
