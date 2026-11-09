@@ -186,10 +186,10 @@
                             x-model="elements[selectedElementIndex].content"
                             @input="updateState()"
                             class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:ring-1 focus:ring-red-500 focus:outline-none"
-                            placeholder="Text or variable e.g. {{size}}"
+                            placeholder="Text or variable e.g. @{{size}}"
                         />
                         <div class="text-[10px] text-slate-400 mt-1">
-                            Available: <code class="text-red-400">@{{item_name}}</code>, <code class="text-red-400">@{{size}}</code>, <code class="text-red-400">@{{price}}</code>, <code class="text-red-400">@{{barcode}}</code>
+                            Available: <code class="text-red-400">&#123;&#123;item_name&#125;&#125;</code>, <code class="text-red-400">&#123;&#123;size&#125;&#125;</code>, <code class="text-red-400">&#123;&#123;price&#125;&#125;</code>, <code class="text-red-400">&#123;&#123;barcode&#125;&#125;</code>
                         </div>
                     </div>
 
